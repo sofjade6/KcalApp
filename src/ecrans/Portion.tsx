@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
-import db, { REPAS, type Entree, type Repas } from '../db'
+import db, { REPAS, marquerUtilise, type Entree, type Repas } from '../db'
 import { chargerCiqual } from '../lib/ciqual'
 import { cleDuJour } from '../lib/dates'
 
@@ -26,6 +26,7 @@ export default function Portion() {
   const [aliment, setAliment] = useState<Brouillon | null>(null)
   const [erreur, setErreur] = useState<string | null>(null)
   const [grammes, setGrammes] = useState('100')
+  const [occupe, setOccupe] = useState(false)
   const [repas, setRepas] = useState<Repas>((repasUrl as Repas) ?? 'dejeuner')
 
   useEffect(() => {
@@ -48,8 +49,25 @@ export default function Portion() {
         setRepas(entree.repas)
       })
     } else {
-      chargerCiqual()
-        .then((base) => {
+      // Un aliment mémorisé localement (saisi à la main, plus tard scanné)
+      // prime : il n'a pas de contrepartie dans la table officielle.
+      db.aliments
+        .get(code!)
+        .then(async (local) => {
+          if (!vivant) return
+          if (local) {
+            return setAliment({
+              nom: local.nom,
+              kcal: local.kcal,
+              prot: local.prot,
+              lip: local.lip,
+              gluc: local.gluc,
+              code: local.code,
+              source: local.source,
+            })
+          }
+
+          const base = await chargerCiqual()
           if (!vivant) return
           const trouve = base.aliments.find((a) => a.c === code)
           if (!trouve) return setErreur('Aliment introuvable dans la table.')
@@ -98,7 +116,10 @@ export default function Portion() {
   ]
 
   async function enregistrer() {
-    if (!valide || !aliment) return
+    // Même verrou que la saisie manuelle : l'écriture précède la navigation,
+    // et un double appui ajouterait deux fois la portion.
+    if (!valide || !aliment || occupe) return
+    setOccupe(true)
 
     if (modeEdition) {
       await db.entrees.update(Number(id), { grammes: quantite, repas })
@@ -116,11 +137,16 @@ export default function Portion() {
         source: aliment.source,
         creeLe: Date.now(),
       })
+      // Remonte l'aliment dans « Mes aliments ». Sans effet sur un code CIQUAL,
+      // qui n'a pas d'entrée dans la table locale.
+      if (aliment.code) await marquerUtilise(aliment.code)
     }
     navigate('/')
   }
 
   async function supprimer() {
+    if (occupe) return
+    setOccupe(true)
     await db.entrees.delete(Number(id))
     navigate('/')
   }
@@ -178,11 +204,15 @@ export default function Portion() {
       </section>
 
       <div className="actions">
-        <button className="bouton" disabled={!valide} onClick={enregistrer}>
+        <button
+          className="bouton"
+          disabled={!valide || occupe}
+          onClick={enregistrer}
+        >
           {modeEdition ? 'Enregistrer' : 'Ajouter'}
         </button>
         {modeEdition && (
-          <button className="bouton danger" onClick={supprimer}>
+          <button className="bouton danger" disabled={occupe} onClick={supprimer}>
             Supprimer
           </button>
         )}

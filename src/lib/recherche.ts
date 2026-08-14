@@ -92,7 +92,9 @@ export function chercher(aliments: AlimentIndexe[], requete: string): Resultats 
     const trouves: { aliment: AlimentIndexe; score: number }[] = []
     for (const aliment of aliments) {
       const score = penalite(aliment.cherchable, termes, tolerance)
-      if (score !== null) trouves.push({ aliment, score })
+      // Un aliment que l'utilisateur a saisi lui-même passe devant la table
+      // officielle : s'il a pris la peine de le créer, c'est qu'il le mange.
+      if (score !== null) trouves.push({ aliment, score: score - (aliment.perso ? 5 : 0) })
     }
     return trouves
       .sort((a, b) => a.score - b.score)

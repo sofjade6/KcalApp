@@ -2,6 +2,7 @@ import { BrowserRouter, NavLink, Navigate, Route, Routes } from 'react-router-do
 import Aujourdhui from './ecrans/Aujourdhui'
 import Ajouter from './ecrans/Ajouter'
 import Portion from './ecrans/Portion'
+import Saisir from './ecrans/Saisir'
 import Reglages from './ecrans/Reglages'
 
 const ONGLETS = [
@@ -38,6 +39,7 @@ export default function App() {
         <Routes>
           <Route path="/" element={<Aujourdhui />} />
           <Route path="/ajouter/:repas" element={<Ajouter />} />
+          <Route path="/saisir/:repas" element={<Saisir />} />
           <Route path="/ajouter/:repas/:code" element={<Portion />} />
           <Route path="/entree/:id" element={<Portion />} />
           <Route path="/reglages" element={<Reglages />} />

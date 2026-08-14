@@ -57,7 +57,15 @@ La recherche compense sur trois plans, sans dictionnaire de synonymes :
   `Crème de lait, 30% MG, épaisse`.
 
 Les produits de marque ne sont pas dans CIQUAL : ils arriveront par le scan de
-codes-barres via OpenFoodFacts.
+codes-barres via OpenFoodFacts. En attendant — et pour tout ce qu'aucune base
+ne connaît, plat de traiteur ou recette maison — un aliment se saisit à la
+main : nom et valeurs pour 100 g. Il est mémorisé sur l'appareil, reproposé en
+tête des recherches suivantes, et listé d'emblée quand la recherche est vide.
+
+La saisie contrôle la cohérence entre les macros et les calories déclarées
+(facteurs Atwater). Un écart important signale l'erreur la plus fréquente :
+avoir recopié la colonne « par portion » de l'étiquette au lieu de la colonne
+« pour 100 g ». L'avertissement ne bloque pas l'enregistrement.
 
 La couleur est réservée aux données : les trois macros portent les seules
 teintes de l'app, le reste du chrome est en encre neutre. Les jauges gardent

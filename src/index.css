@@ -610,6 +610,40 @@ a.repas-vide {
   color: var(--encre-muette);
 }
 
+/* Le nom d'un aliment a besoin de toute la largeur, contrairement
+   aux champs numériques. */
+.champ-large {
+  flex-direction: column;
+  align-items: stretch;
+  gap: 0.45rem;
+}
+
+.champ-large input {
+  width: 100%;
+  text-align: left;
+  font-family: inherit;
+  background: var(--carte-creuse);
+  border: 1px solid var(--trait);
+  border-radius: 8px;
+  padding: 0.55rem 0.7rem;
+  font-size: 16px;
+}
+
+.saisie-manuelle {
+  text-decoration: none;
+  text-align: center;
+}
+
+.avertissement {
+  font-size: 0.85rem;
+  line-height: 1.5;
+  color: var(--encre-douce);
+  border: 1px solid var(--trait-fort);
+  border-left: 3px solid var(--alerte);
+  border-radius: 8px;
+  padding: 0.75rem 0.9rem;
+}
+
 .sr-only {
   position: absolute;
   width: 1px;

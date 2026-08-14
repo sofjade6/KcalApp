@@ -17,6 +17,8 @@ export interface AlimentIndexe extends AlimentCiqual {
   /** Libellé sans accents ni majuscules, calculé une fois au chargement. */
   cherchable: string
   groupe: string
+  /** Aliment saisi par l'utilisateur, à privilégier dans le classement. */
+  perso?: boolean
 }
 
 export interface BaseCiqual {

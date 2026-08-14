@@ -86,6 +86,25 @@ export const PROFIL_DEFAUT: Profil = {
   majLe: 0,
 }
 
+/**
+ * Mémorise un aliment saisi à la main pour qu'il soit reproposé ensuite.
+ *
+ * Ces aliments n'ont pas de code-barres : on leur en fabrique un, préfixé,
+ * pour qu'ils cohabitent sans risque avec les codes EAN d'OpenFoodFacts.
+ */
+export async function creerAlimentManuel(
+  saisie: Nutriments & { nom: string; marque?: string },
+): Promise<string> {
+  const code = `manuel-${crypto.randomUUID()}`
+  await db.aliments.add({ ...saisie, code, source: 'manuel', vuLe: Date.now() })
+  return code
+}
+
+/** Remonte un aliment dans la liste des derniers utilisés. */
+export async function marquerUtilise(code: string) {
+  await db.aliments.update(code, { vuLe: Date.now() })
+}
+
 export async function lireProfil(): Promise<Profil> {
   return (await db.profil.get('moi')) ?? PROFIL_DEFAUT
 }
