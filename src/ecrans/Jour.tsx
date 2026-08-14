@@ -204,7 +204,7 @@ export default function Jour() {
           {entrees.length > 0 && <Link to={`/ajouter?jour=${jour}`}>+ Ajouter</Link>}
           <Link to={`/copier?jour=${jour}`}>Copier un autre jour</Link>
           {entrees.length >= 2 && (
-            <Link to={`/recette?jour=${jour}`}>Enregistrer comme recette</Link>
+            <Link to={`/recettes/depuis-jour?jour=${jour}`}>En faire une recette</Link>
           )}
         </div>
       </section>

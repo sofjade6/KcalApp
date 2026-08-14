@@ -26,8 +26,9 @@ export default function Saisir() {
   // est alors mémorisé sous son vrai code-barres, et reconnu aux scans suivants.
   const parametres = useSearchParams()[0]
   const codeBarres = parametres.get('code') ?? undefined
+  const recette = parametres.get('recette')
   const jour = parametres.get('jour')
-  const suffixe = jour ? `?jour=${jour}` : ''
+  const suffixe = recette ? `?recette=${recette}` : jour ? `?jour=${jour}` : ''
 
   const [nom, setNom] = useState('')
   const [valeurs, setValeurs] = useState<Record<CleNutriment, string>>({

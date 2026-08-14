@@ -1,167 +1,201 @@
 import { useEffect, useState } from 'react'
-import { Link, useNavigate, useSearchParams } from 'react-router-dom'
-import db, { creerRecette, type Entree } from '../db'
-import { cleDuJour } from '../lib/dates'
-import { kcalPortion, totalKcal } from '../lib/nutrition'
+import { Link, useNavigate, useParams } from 'react-router-dom'
+import { useLiveQuery } from 'dexie-react-hooks'
+import db, { SECONDAIRES } from '../db'
+import {
+  estRecette,
+  kcalIngredient,
+  majRecette,
+  poidsDesIngredients,
+  retirerIngredient,
+  type Recette as Preparation,
+} from '../lib/recettes'
+
+const arrondi = (v: number, decimales = 1) => v.toFixed(decimales).replace('.', ',')
 
 /**
- * Transforme des aliments déjà notés en recette réutilisable.
+ * Composition d'une recette : un nom, des ingrédients pesés, un poids final.
  *
- * Partir du journal plutôt que d'un composeur vierge évite de ressaisir des
- * ingrédients déjà notés. Comme la journée n'est plus découpée en repas, les
- * ingrédients du plat s'y choisissent un par un.
+ * Le choix des ingrédients repasse par la recherche et l'écran de quantité,
+ * qui savent déjà interroger CIQUAL, scanner un code-barres et proposer des
+ * portions usuelles — les refaire ici n'apporterait rien.
  */
 export default function Recette() {
+  const { code } = useParams()
   const navigate = useNavigate()
-  const jour = useSearchParams()[0].get('jour') ?? cleDuJour()
-  const retour = jour === cleDuJour() ? '/' : `/jour/${jour}`
 
-  const [entrees, setEntrees] = useState<Entree[] | null>(null)
-  const [retenus, setRetenus] = useState<Set<number>>(new Set())
+  const recette = useLiveQuery(
+    () => db.aliments.get(code!).then((a) => (a && estRecette(a) ? (a as Preparation) : null)),
+    [code],
+  )
+
   const [nom, setNom] = useState('')
   const [poids, setPoids] = useState('')
-  const [occupe, setOccupe] = useState(false)
-  // Tant que le poids n'a pas été touché, il suit la sélection.
-  const [poidsTouche, setPoidsTouche] = useState(false)
 
   useEffect(() => {
-    let vivant = true
-    db.entrees.where('date').equals(jour).toArray().then((liste) => {
-      if (!vivant) return
-      setEntrees(liste)
-      setRetenus(new Set(liste.map((e) => e.id!)))
-    })
-    return () => {
-      vivant = false
-    }
-  }, [jour])
+    if (!recette) return
+    setNom(recette.nom)
+    setPoids(String(recette.poidsTotal))
+  }, [recette?.code]) // eslint-disable-line react-hooks/exhaustive-deps
 
-  const choisis = entrees?.filter((e) => retenus.has(e.id!)) ?? []
-
-  useEffect(() => {
-    if (poidsTouche) return
-    setPoids(String(choisis.reduce((t, e) => t + e.grammes, 0)))
-    // `choisis` est recalculé à chaque rendu : c'est bien la sélection qu'on suit.
-  }, [retenus, entrees, poidsTouche]) // eslint-disable-line react-hooks/exhaustive-deps
-
-  if (!entrees) return <div className="vue" />
-
-  const poidsTotal = Number(poids)
-  const valide =
-    nom.trim() !== '' && Number.isFinite(poidsTotal) && poidsTotal > 0 && choisis.length > 0
-  const kcalTotal = totalKcal(choisis)
-  const pour100 = poidsTotal > 0 ? Math.round((kcalTotal / poidsTotal) * 100) : 0
-
-  function basculer(id: number) {
-    setRetenus((actuels) => {
-      const suivant = new Set(actuels)
-      if (suivant.has(id)) suivant.delete(id)
-      else suivant.add(id)
-      return suivant
-    })
+  if (recette === undefined) return <div className="vue" />
+  if (recette === null) {
+    return (
+      <div className="vue">
+        <header className="vue-entete">
+          <Link to="/recettes" className="retour">
+            ← Recettes
+          </Link>
+        </header>
+        <p className="repas-vide">Cette recette n’existe plus.</p>
+      </div>
+    )
   }
 
-  async function enregistrer() {
-    if (!valide || occupe) return
-    setOccupe(true)
-    await creerRecette(nom.trim(), poidsTotal, choisis)
-    navigate(retour)
+  const ingredients = recette.ingredients
+  const somme = poidsDesIngredients(ingredients)
+  const poidsSaisi = Number(poids)
+  const poidsValide = Number.isFinite(poidsSaisi) && poidsSaisi > 0
+  const kcalTotal = ingredients.reduce((t, i) => t + kcalIngredient(i), 0)
+
+  const secondaires = SECONDAIRES.filter(({ cle }) => recette[cle] !== undefined)
+
+  async function supprimer() {
+    await db.aliments.delete(code!)
+    navigate('/recettes')
   }
 
   return (
     <div className="vue">
       <header className="vue-entete">
-        <Link to={retour} className="retour">
-          ← Retour
+        <Link to="/recettes" className="retour">
+          ← Recettes
         </Link>
-        <h1 className="vue-titre">Enregistrer comme recette</h1>
+        <h1 className="vue-titre">{recette.nom}</h1>
       </header>
 
-      {entrees.length === 0 ? (
-        <p className="repas-vide">
-          Rien de noté ce jour-là. Note d’abord les ingrédients, puis reviens ici.
-        </p>
-      ) : (
-        <>
-          <section className="carte">
-            <h2 className="carte-titre">Ingrédients à retenir</h2>
-            <div className="lignes">
-              {entrees.map((e) => (
-                <button
-                  className="ligne ligne-choix"
-                  key={e.id}
-                  aria-pressed={retenus.has(e.id!)}
-                  onClick={() => basculer(e.id!)}
-                >
-                  <span className="ligne-nom">
-                    {e.nom}
-                    <span className="ligne-detail">{e.grammes} g</span>
-                  </span>
-                  <span className="ligne-kcal">{kcalPortion(e)} kcal</span>
-                </button>
-              ))}
-            </div>
-          </section>
+      <section className="carte">
+        <label className="champ champ-large">
+          <span className="champ-nom">Nom</span>
+          <input
+            type="text"
+            value={nom}
+            onChange={(e) => setNom(e.target.value)}
+            onBlur={() => nom.trim() && majRecette(code!, () => ({ nom: nom.trim() }))}
+            placeholder="Lasagnes au bœuf"
+            autoComplete="off"
+          />
+        </label>
+      </section>
 
-          <section className="carte">
-            <label className="champ champ-large">
-              <span className="champ-nom">Nom de la recette</span>
-              <input
-                type="text"
-                value={nom}
-                onChange={(e) => setNom(e.target.value)}
-                placeholder="Bolognaise maison"
-                autoComplete="off"
-              />
-            </label>
+      <section className="repas">
+        <div className="repas-tete">
+          <h2 className="repas-nom">Ingrédients</h2>
+          <span className="repas-kcal">{kcalTotal} kcal</span>
+        </div>
 
-            <label className="champ">
-              <span className="champ-nom">
-                Poids de la préparation
-                <small>en grammes, une fois prête</small>
-              </span>
-              <input
-                type="number"
-                inputMode="numeric"
-                min={1}
-                value={poids}
-                onChange={(e) => {
-                  setPoidsTouche(true)
-                  setPoids(e.target.value)
-                }}
-              />
-            </label>
-
-            <dl>
-              <div className="etat">
-                <dt>Total retenu</dt>
-                <dd>{kcalTotal} kcal</dd>
+        {ingredients.length === 0 ? (
+          <Link to={`/ajouter?recette=${code}`} className="repas-vide">
+            Aucun ingrédient — en ajouter un
+          </Link>
+        ) : (
+          <div className="lignes">
+            {ingredients.map((i, rang) => (
+              <div className="ligne" key={`${i.nom}-${rang}`}>
+                <span className="ligne-nom">
+                  {i.nom}
+                  <span className="ligne-detail">{i.grammes} g</span>
+                </span>
+                <span className="ligne-kcal">
+                  {kcalIngredient(i)} kcal
+                  <button
+                    className="ligne-retirer"
+                    aria-label={`Retirer ${i.nom}`}
+                    onClick={() => retirerIngredient(code!, rang)}
+                  >
+                    ×
+                  </button>
+                </span>
               </div>
-              <div className="etat">
-                <dt>Pour 100 g</dt>
-                <dd>{pour100} kcal</dd>
-              </div>
-            </dl>
-
-            <p className="note">
-              Par défaut, la somme des ingrédients retenus. Corrige-la si la
-              cuisson a fait perdre de l’eau : à poids réduit, les valeurs se
-              concentrent.
-            </p>
-          </section>
-
-          <div className="actions">
-            <button className="bouton" disabled={!valide || occupe} onClick={enregistrer}>
-              {occupe ? 'Enregistrement…' : 'Créer la recette'}
-            </button>
+            ))}
           </div>
+        )}
 
+        <div className="repas-actions">
+          {ingredients.length > 0 && (
+            <Link to={`/ajouter?recette=${code}`}>+ Ajouter un ingrédient</Link>
+          )}
+        </div>
+      </section>
+
+      {ingredients.length > 0 && (
+        <section className="carte">
+          <h2 className="carte-titre">Poids de la préparation</h2>
+          <label className="champ">
+            <span className="champ-nom">
+              Une fois prête
+              <small>somme des ingrédients : {somme} g</small>
+            </span>
+            <input
+              type="number"
+              inputMode="numeric"
+              min={1}
+              value={poids}
+              onChange={(e) => setPoids(e.target.value)}
+              onBlur={() =>
+                poidsValide && majRecette(code!, () => ({ poidsTotal: Math.round(poidsSaisi) }))
+              }
+            />
+          </label>
           <p className="note">
-            La recette rejoindra tes aliments : tu pourras en consommer une part
-            en pesant simplement ton assiette.
+            À corriger si la cuisson a fait perdre de l’eau : à poids réduit,
+            les valeurs se concentrent. C’est ce poids qui sert de base au
+            calcul pour 100 g.
           </p>
-        </>
+        </section>
       )}
+
+      {ingredients.length > 0 && (
+        <section className="carte">
+          <h2 className="carte-titre">Pour 100 g de préparation</h2>
+          <dl>
+            <div className="etat">
+              <dt>Calories</dt>
+              <dd>{Math.round(recette.kcal)} kcal</dd>
+            </div>
+            <div className="etat">
+              <dt>Protéines</dt>
+              <dd>{arrondi(recette.prot)} g</dd>
+            </div>
+            <div className="etat">
+              <dt>Lipides</dt>
+              <dd>{arrondi(recette.lip)} g</dd>
+            </div>
+            <div className="etat">
+              <dt>Glucides</dt>
+              <dd>{arrondi(recette.gluc)} g</dd>
+            </div>
+            {secondaires.map(({ cle, nom: libelle, unite }) => (
+              <div className="etat" key={cle}>
+                <dt>{libelle}</dt>
+                <dd>
+                  {arrondi(recette[cle]!, cle === 'sel' ? 2 : 1)} {unite}
+                </dd>
+              </div>
+            ))}
+          </dl>
+          <p className="note">
+            La recette est déjà disponible dans la recherche : ajoute-la à ta
+            journée et pèse simplement ta part.
+          </p>
+        </section>
+      )}
+
+      <div className="actions">
+        <button className="bouton danger" onClick={supprimer}>
+          Supprimer la recette
+        </button>
+      </div>
     </div>
   )
 }

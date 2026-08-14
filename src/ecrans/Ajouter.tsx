@@ -5,13 +5,21 @@ import db from '../db'
 import { chargerCiqual, type AlimentIndexe } from '../lib/ciqual'
 import { chercher, normaliser, LIMITE_RESULTATS } from '../lib/recherche'
 import { alimentsRecents, ajouterAuJournal, type AlimentRecent } from '../lib/journal'
+import { ajouterIngredient } from '../lib/recettes'
 import { cleDuJour, libelleJour } from '../lib/dates'
 import { libellePortion } from '../lib/portions'
 
 export default function Ajouter() {
   const navigate = useNavigate()
-  const jour = useSearchParams()[0].get('jour') ?? cleDuJour()
-  const retour = jour === cleDuJour() ? '/' : `/jour/${jour}`
+  const parametres = useSearchParams()[0]
+  const jour = parametres.get('jour') ?? cleDuJour()
+  const recette = parametres.get('recette')
+  const retour = recette
+    ? `/recettes/${recette}`
+    : jour === cleDuJour()
+      ? '/'
+      : `/jour/${jour}`
+  const suffixe = recette ? `?recette=${recette}` : `?jour=${jour}`
 
   const [ciqual, setCiqual] = useState<AlimentIndexe[] | null>(null)
   const [erreur, setErreur] = useState<string | null>(null)
@@ -68,7 +76,23 @@ export default function Ajouter() {
     if (occupe) return
     setOccupe(true)
     const { fois: _fois, dernierJour: _dernierJour, ...modele } = aliment
-    await ajouterAuJournal(modele, jour)
+    if (recette) {
+      await ajouterIngredient(recette, {
+        nom: modele.nom,
+        grammes: modele.grammes,
+        code: modele.code,
+        kcal: modele.kcal,
+        prot: modele.prot,
+        lip: modele.lip,
+        gluc: modele.gluc,
+        fib: modele.fib,
+        sel: modele.sel,
+        suc: modele.suc,
+        ags: modele.ags,
+      })
+    } else {
+      await ajouterAuJournal(modele, jour)
+    }
     navigate(retour)
   }
 
@@ -78,13 +102,15 @@ export default function Ajouter() {
         <Link to={retour} className="retour">
           ← Retour
         </Link>
-        <h1 className="vue-titre">Ajouter un aliment</h1>
+        <h1 className="vue-titre">
+          {recette ? 'Ajouter un ingrédient' : 'Ajouter un aliment'}
+        </h1>
         {jour !== cleDuJour() && (
           <span className="vue-date">{libelleJour(jour)}</span>
         )}
       </header>
 
-      <Link to={`/scanner?jour=${jour}`} className="bouton scanner-entree">
+      <Link to={`/scanner${suffixe}`} className="bouton scanner-entree">
         <svg viewBox="0 0 24 24" aria-hidden="true">
           <path d="M3 8V5.5A1.5 1.5 0 0 1 4.5 4H7M17 4h2.5A1.5 1.5 0 0 1 21 5.5V8M21 16v2.5a1.5 1.5 0 0 1-1.5 1.5H17M7 20H4.5A1.5 1.5 0 0 1 3 18.5V16" />
           <path d="M7 8.5v7M10.5 8.5v7M14 8.5v7M17 8.5v7" />
@@ -159,7 +185,7 @@ export default function Ajouter() {
               <button
                 key={aliment.c}
                 className="resultat"
-                onClick={() => navigate(`/ajouter/${aliment.c}?jour=${jour}`)}
+                onClick={() => navigate(`/ajouter/${aliment.c}${suffixe}`)}
               >
                 <span className="resultat-nom">
                   {aliment.n}
@@ -202,7 +228,7 @@ export default function Ajouter() {
             <button
               key={aliment.c}
               className="resultat"
-              onClick={() => navigate(`/ajouter/${aliment.c}?jour=${jour}`)}
+              onClick={() => navigate(`/ajouter/${aliment.c}${suffixe}`)}
             >
               <span className="resultat-nom">
                 {aliment.n}
@@ -225,7 +251,7 @@ export default function Ajouter() {
         </div>
       )}
 
-      <Link to={`/saisir?jour=${jour}`} className="bouton discret saisie-manuelle">
+      <Link to={`/saisir${suffixe}`} className="bouton discret saisie-manuelle">
         Saisir un aliment absent de la table
       </Link>
     </div>

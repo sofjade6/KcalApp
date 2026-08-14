@@ -3,6 +3,8 @@ import { BrowserRouter, NavLink, Navigate, Route, Routes } from 'react-router-do
 import Jour from './ecrans/Jour'
 import Copier from './ecrans/Copier'
 import Recette from './ecrans/Recette'
+import Recettes from './ecrans/Recettes'
+import RecetteDepuisJour from './ecrans/RecetteDepuisJour'
 import Bilan from './ecrans/Bilan'
 import Aliment from './ecrans/Aliment'
 import Ajouter from './ecrans/Ajouter'
@@ -20,12 +22,22 @@ import Reglages from './ecrans/Reglages'
 const ONGLETS = [
   {
     chemin: '/',
-    nom: 'Aujourd’hui',
+    nom: 'Journal',
     icone: (
       <>
         <path d="M4 6.5h16" />
         <path d="M4 12h16" />
         <path d="M4 17.5h10" />
+      </>
+    ),
+  },
+  {
+    chemin: '/recettes',
+    nom: 'Recettes',
+    icone: (
+      <>
+        <path d="M4 7h16M4 12h16M4 17h10" />
+        <circle cx="17.5" cy="17" r="2.5" />
       </>
     ),
   },
@@ -71,7 +83,11 @@ export default function App() {
           <Route path="/" element={<Jour />} />
           <Route path="/jour/:date" element={<Jour />} />
           <Route path="/copier" element={<Copier />} />
-          <Route path="/recette" element={<Recette />} />
+          <Route path="/recettes" element={<Recettes />} />
+          {/* Le segment fixe passe avant le paramètre : sans cet ordre,
+              « depuis-jour » serait pris pour un code de recette. */}
+          <Route path="/recettes/depuis-jour" element={<RecetteDepuisJour />} />
+          <Route path="/recettes/:code" element={<Recette />} />
           <Route path="/aliment/:code" element={<Aliment />} />
           <Route path="/ajouter" element={<Ajouter />} />
           <Route path="/saisir" element={<Saisir />} />

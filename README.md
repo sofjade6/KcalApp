@@ -64,15 +64,31 @@ recherche, le scan, la saisie et l'écran de quantité.
 
 La journée est **une seule liste d'aliments**, sans découpage en repas.
 
-Trois raccourcis réduisent la saisie quotidienne : les **aliments récents**,
+Deux raccourcis réduisent la saisie quotidienne : les **aliments récents**,
 reproposés en tête de recherche et réajoutables d'un geste avec la quantité de
-la dernière fois ; la **copie d'une journée** précédente ; et les **recettes**,
-des aliments déjà notés transformés en un aliment réutilisable dont on pèse
-ensuite sa part.
+la dernière fois, et la **copie d'une journée** précédente.
 
-Une recette est stockée comme un aliment mémorisé ordinaire — elle hérite ainsi
-de la recherche, de la résolution et des portions, sans seconde voie à
-maintenir. Sa composition est conservée à titre de mémoire.
+## Recettes
+
+Une recette est un groupe d'aliments réuni sous un nom — des lasagnes faites de
+pâtes, tomates, bœuf et fromage, chacun avec son grammage. L'onglet Recettes
+les compose ; le choix des ingrédients repasse par la recherche et l'écran de
+quantité, qui savent déjà interroger CIQUAL, scanner un code-barres et proposer
+des portions usuelles.
+
+Le **poids final** est distinct de la somme des ingrédients : la cuisson fait
+perdre de l'eau, et c'est lui qui sert de base au calcul pour 100 g. Ajouter ou
+retirer un ingrédient recalcule l'ensemble, ce qui suppose que chaque
+ingrédient porte ses propres valeurs — d'où leur stockage complet et non
+réduit au couple nom/grammage.
+
+Une recette est enregistrée comme un aliment mémorisé ordinaire : elle hérite
+ainsi de la recherche, de la résolution et des portions, sans seconde voie à
+maintenir. Elle s'ajoute donc à la journée comme n'importe quel aliment, en
+pesant sa part.
+
+Un raccourci existe depuis le journal, pour transformer des aliments déjà notés
+en recette sans les ressaisir.
 
 ## Bilan
 

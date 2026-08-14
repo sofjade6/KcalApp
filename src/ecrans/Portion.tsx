@@ -9,6 +9,7 @@ import db, {
 import { chargerCiqual } from '../lib/ciqual'
 import { cleDuJour, libelleJour } from '../lib/dates'
 import { libellePortion, portionsPour, type PortionUsuelle } from '../lib/portions'
+import { ajouterIngredient } from '../lib/recettes'
 
 interface Brouillon extends Nutriments {
   nom: string
@@ -27,8 +28,17 @@ export default function Portion() {
   const navigate = useNavigate()
   // Jour visé, transmis par l'écran appelant : on peut compléter une journée
   // passée aussi bien que celle du jour.
-  const jour = useSearchParams()[0].get('jour') ?? cleDuJour()
-  const retour = jour === cleDuJour() ? '/' : `/jour/${jour}`
+  const parametres = useSearchParams()[0]
+  const jour = parametres.get('jour') ?? cleDuJour()
+  // Quand ce paramètre est présent, la quantité alimente une recette en cours
+  // de composition plutôt que le journal du jour.
+  const recette = parametres.get('recette')
+  const retour = recette
+    ? `/recettes/${recette}`
+    : jour === cleDuJour()
+      ? '/'
+      : `/jour/${jour}`
+  const suffixe = recette ? `?recette=${recette}` : `?jour=${jour}`
   const modeEdition = id !== undefined
 
   const [aliment, setAliment] = useState<Brouillon | null>(null)
@@ -180,6 +190,23 @@ export default function Portion() {
     if (!valide || !aliment || occupe) return
     setOccupe(true)
 
+    if (recette) {
+      await ajouterIngredient(recette, {
+        nom: aliment.nom,
+        grammes: quantite,
+        code: aliment.code,
+        kcal: aliment.kcal,
+        prot: aliment.prot,
+        lip: aliment.lip,
+        gluc: aliment.gluc,
+        fib: aliment.fib,
+        sel: aliment.sel,
+        suc: aliment.suc,
+        ags: aliment.ags,
+      })
+      return navigate(retour)
+    }
+
     const portionRetenue = unite
       ? { nom: unite.nom, grammes: unite.grammes, nombre }
       : undefined
@@ -225,7 +252,7 @@ export default function Portion() {
     <div className="vue">
       <header className="vue-entete">
         <Link
-          to={modeEdition ? retour : `/ajouter?jour=${jour}`}
+          to={modeEdition ? retour : `/ajouter${suffixe}`}
           className="retour"
         >
           ← {modeEdition ? 'Retour' : 'Recherche'}
@@ -291,10 +318,14 @@ export default function Portion() {
           </label>
         )}
 
-        {jour !== cleDuJour() && (
-          <p className="note">
-            Ajout au <b>{libelleJour(jour).toLowerCase()}</b>.
-          </p>
+        {recette ? (
+          <p className="note">Ajout à la recette en cours de composition.</p>
+        ) : (
+          jour !== cleDuJour() && (
+            <p className="note">
+              Ajout au <b>{libelleJour(jour).toLowerCase()}</b>.
+            </p>
+          )
         )}
 
       </section>
@@ -325,7 +356,7 @@ export default function Portion() {
           disabled={!valide || occupe}
           onClick={enregistrer}
         >
-          {modeEdition ? 'Enregistrer' : 'Ajouter'}
+          {modeEdition ? 'Enregistrer' : recette ? 'Ajouter à la recette' : 'Ajouter'}
         </button>
         {modeEdition && (
           <button className="bouton danger" disabled={occupe} onClick={supprimer}>

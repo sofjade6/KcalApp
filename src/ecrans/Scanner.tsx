@@ -21,8 +21,10 @@ type Etat =
 
 export default function Scanner() {
   const navigate = useNavigate()
-  const jour = useSearchParams()[0].get('jour')
-  const suffixe = jour ? `?jour=${jour}` : ''
+  const parametres = useSearchParams()[0]
+  const recette = parametres.get('recette')
+  const jour = parametres.get('jour')
+  const suffixe = recette ? `?recette=${recette}` : jour ? `?jour=${jour}` : ''
   const video = useRef<HTMLVideoElement>(null)
   const [etat, setEtat] = useState<Etat>({ phase: 'demarrage' })
 
@@ -148,7 +150,7 @@ export default function Scanner() {
             {etat.code && (
               <Link
                 className="bouton"
-                to={`/saisir?code=${encodeURIComponent(etat.code)}${jour ? `&jour=${jour}` : ''}`}
+                to={`/saisir?code=${encodeURIComponent(etat.code)}${suffixe.replace('?', '&')}`}
               >
                 Saisir ce produit
               </Link>
