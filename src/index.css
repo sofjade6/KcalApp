@@ -652,6 +652,88 @@ a.repas-vide {
   padding: 0.75rem 0.9rem;
 }
 
+/* ---------- portions usuelles ---------- */
+
+.portions {
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+}
+
+.portions-choix {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+
+.puce {
+  display: flex;
+  align-items: baseline;
+  gap: 0.35rem;
+  padding: 0.45rem 0.7rem;
+  border: 1px solid var(--trait);
+  border-radius: 999px;
+  background: var(--carte-creuse);
+  color: var(--encre-douce);
+  font-size: 0.88rem;
+}
+
+.puce small {
+  font-family: var(--mono);
+  font-size: 0.7rem;
+  color: var(--encre-muette);
+}
+
+.puce[aria-pressed='true'] {
+  background: var(--encre);
+  border-color: var(--encre);
+  color: var(--fond);
+  font-weight: 600;
+}
+
+.puce[aria-pressed='true'] small {
+  color: var(--fond);
+  opacity: 0.7;
+}
+
+.compteur {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.compteur-bouton {
+  width: 2.75rem;
+  height: 2.75rem;
+  border: 1px solid var(--trait-fort);
+  border-radius: 10px;
+  font-size: 1.3rem;
+  line-height: 1;
+  color: var(--encre);
+  background: var(--carte-creuse);
+}
+
+.compteur-bouton[disabled] {
+  opacity: 0.4;
+}
+
+.compteur-valeur {
+  text-align: center;
+  font-size: 1.05rem;
+  font-weight: 600;
+}
+
+.compteur-valeur small {
+  display: block;
+  font-family: var(--mono);
+  font-variant-numeric: tabular-nums;
+  font-size: 0.78rem;
+  font-weight: 400;
+  color: var(--encre-muette);
+  margin-top: 0.1rem;
+}
+
 /* ---------- pesee ---------- */
 
 .pesee {

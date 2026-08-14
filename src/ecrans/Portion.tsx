@@ -3,6 +3,7 @@ import { Link, useNavigate, useParams } from 'react-router-dom'
 import db, { REPAS, marquerUtilise, type Entree, type Repas } from '../db'
 import { chargerCiqual } from '../lib/ciqual'
 import { cleDuJour } from '../lib/dates'
+import { libellePortion, portionsPour, type PortionUsuelle } from '../lib/portions'
 
 interface Brouillon {
   nom: string
@@ -12,6 +13,8 @@ interface Brouillon {
   gluc: number
   code?: string
   source: Entree['source']
+  portionG?: number
+  portionNom?: string
 }
 
 /**
@@ -26,6 +29,10 @@ export default function Portion() {
   const [aliment, setAliment] = useState<Brouillon | null>(null)
   const [erreur, setErreur] = useState<string | null>(null)
   const [grammes, setGrammes] = useState('100')
+  // Unité choisie parmi les portions usuelles, et son multiple. Nul tant que
+  // la quantité est donnée en grammes.
+  const [unite, setUnite] = useState<PortionUsuelle | null>(null)
+  const [nombre, setNombre] = useState(1)
   const [occupe, setOccupe] = useState(false)
   const [repas, setRepas] = useState<Repas>((repasUrl as Repas) ?? 'dejeuner')
 
@@ -47,6 +54,10 @@ export default function Portion() {
         })
         setGrammes(String(entree.grammes))
         setRepas(entree.repas)
+        if (entree.portion) {
+          setUnite({ nom: entree.portion.nom, grammes: entree.portion.grammes })
+          setNombre(entree.portion.nombre)
+        }
       })
     } else {
       // Un aliment mémorisé localement (saisi à la main, plus tard scanné)
@@ -57,6 +68,8 @@ export default function Portion() {
           if (!vivant) return
           if (local) {
             return setAliment({
+              portionG: local.portionG,
+              portionNom: local.portionNom,
               nom: local.nom,
               kcal: local.kcal,
               prot: local.prot,
@@ -104,9 +117,32 @@ export default function Portion() {
 
   if (!aliment) return <div className="vue" />
 
-  const quantite = Number(grammes)
+  const portions = portionsPour(
+    aliment.nom,
+    aliment.portionG !== undefined
+      ? { nom: aliment.portionNom ?? 'portion', grammes: aliment.portionG }
+      : undefined,
+  )
+
+  // La quantité en grammes reste la valeur de référence ; une unité choisie
+  // ne fait que la calculer.
+  const quantite = unite ? Math.round(unite.grammes * nombre) : Number(grammes)
   const valide = Number.isFinite(quantite) && quantite > 0
   const facteur = valide ? quantite / 100 : 0
+
+  function choisirUnite(portion: PortionUsuelle) {
+    const memeUnite = unite?.nom === portion.nom
+    setUnite(memeUnite ? null : portion)
+    if (!memeUnite) setNombre(1)
+    else setGrammes(String(quantite))
+  }
+
+  function ajuster(delta: number) {
+    // Demi-portions en dessous de deux : une demi-tranche est courante,
+    // sept portions et demie ne le sont pas.
+    const pas = nombre + delta < 2 ? 0.5 : 1
+    setNombre(Math.max(0.5, Math.round((nombre + delta * pas) * 2) / 2))
+  }
 
   const apercu = [
     { nom: 'Calories', valeur: aliment.kcal * facteur, unite: 'kcal' },
@@ -121,14 +157,23 @@ export default function Portion() {
     if (!valide || !aliment || occupe) return
     setOccupe(true)
 
+    const portionRetenue = unite
+      ? { nom: unite.nom, grammes: unite.grammes, nombre }
+      : undefined
+
     if (modeEdition) {
-      await db.entrees.update(Number(id), { grammes: quantite, repas })
+      await db.entrees.update(Number(id), {
+        grammes: quantite,
+        repas,
+        portion: portionRetenue,
+      })
     } else {
       await db.entrees.add({
         date: cleDuJour(),
         repas,
         nom: aliment.nom,
         grammes: quantite,
+        portion: portionRetenue,
         kcal: aliment.kcal,
         prot: aliment.prot,
         lip: aliment.lip,
@@ -161,19 +206,62 @@ export default function Portion() {
       </header>
 
       <section className="carte">
-        <label className="champ">
-          <span className="champ-nom">
-            Quantité
-            <small>en grammes</small>
-          </span>
-          <input
-            type="number"
-            inputMode="numeric"
-            min={1}
-            value={grammes}
-            onChange={(e) => setGrammes(e.target.value)}
-          />
-        </label>
+        {portions.length > 0 && (
+          <div className="portions">
+            <span className="carte-titre">Portion usuelle</span>
+            <div className="portions-choix">
+              {portions.map((portion) => (
+                <button
+                  key={portion.nom}
+                  className="puce"
+                  aria-pressed={unite?.nom === portion.nom}
+                  onClick={() => choisirUnite(portion)}
+                >
+                  1 {portion.nom}
+                  <small>{portion.grammes} g</small>
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {unite ? (
+          <div className="compteur">
+            <button
+              className="compteur-bouton"
+              aria-label="Diminuer"
+              disabled={nombre <= 0.5}
+              onClick={() => ajuster(-1)}
+            >
+              −
+            </button>
+            <span className="compteur-valeur">
+              {libellePortion(unite, nombre)}
+              <small>{quantite} g</small>
+            </span>
+            <button
+              className="compteur-bouton"
+              aria-label="Augmenter"
+              onClick={() => ajuster(1)}
+            >
+              +
+            </button>
+          </div>
+        ) : (
+          <label className="champ">
+            <span className="champ-nom">
+              Quantité
+              <small>en grammes</small>
+            </span>
+            <input
+              type="number"
+              inputMode="numeric"
+              min={1}
+              value={grammes}
+              onChange={(e) => setGrammes(e.target.value)}
+            />
+          </label>
+        )}
 
         <div className="segments" role="group" aria-label="Repas">
           {REPAS.map(({ cle, nom }) => (

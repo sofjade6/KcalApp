@@ -29,6 +29,12 @@ export interface Entree extends Nutriments {
   repas: Repas
   nom: string
   grammes: number
+  /**
+   * Portion usuelle utilisée à la saisie, quand la quantité n'a pas été
+   * donnée en grammes. Conservée pour réafficher « 2 œufs » plutôt que
+   * « 100 g », et retrouver le même réglage à la correction.
+   */
+  portion?: { nom: string; grammes: number; nombre: number }
   /** Code-barres, quand l'entrée vient d'un scan. */
   code?: string
   source: 'ciqual' | 'openfoodfacts' | 'manuel'
@@ -40,6 +46,9 @@ export interface AlimentEnCache extends Nutriments {
   code: string
   nom: string
   marque?: string
+  /** Portion indiquée sur l'emballage, telle que rapportée par OpenFoodFacts. */
+  portionG?: number
+  portionNom?: string
   source: 'ciqual' | 'openfoodfacts' | 'manuel'
   vuLe: number
 }

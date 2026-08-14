@@ -3,6 +3,7 @@ import { useLiveQuery } from 'dexie-react-hooks'
 import db, { REPAS, lireProfil, PROFIL_DEFAUT, type Entree } from '../db'
 import { cleDuJour, dateLongue } from '../lib/dates'
 import { cumuler, kcalPortion, totalKcal } from '../lib/nutrition'
+import { libellePortion } from '../lib/portions'
 import Jauge from '../composants/Jauge'
 
 export default function Aujourdhui() {
@@ -103,7 +104,11 @@ export default function Aujourdhui() {
                   >
                     <span className="ligne-nom">
                       {entree.nom}
-                      <span className="ligne-detail">{entree.grammes} g</span>
+                      <span className="ligne-detail">
+                        {entree.portion
+                          ? `${libellePortion(entree.portion, entree.portion.nombre)} · ${entree.grammes} g`
+                          : `${entree.grammes} g`}
+                      </span>
                     </span>
                     <span className="ligne-kcal">{kcalPortion(entree)} kcal</span>
                   </Link>

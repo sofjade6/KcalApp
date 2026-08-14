@@ -56,6 +56,24 @@ La recherche compense sur trois plans, sans dictionnaire de synonymes :
   cas de `crème fraîche`, absente de la table, qui s'y nomme
   `Crème de lait, 30% MG, épaisse`.
 
+## Portions usuelles
+
+La quantité se saisit en grammes ou en unités courantes — « 2 œufs » plutôt
+que « 100 g ». Les portions sont rattachées aux aliments par mot-clé sur leur
+libellé, dans `src/lib/portions.ts` ; pour un produit scanné, la portion
+inscrite sur l'emballage (OpenFoodFacts) prime sur la moyenne générique.
+
+Ce sont des moyennes indicatives : un œuf calibre L et un calibre S ne pèsent
+pas la même chose. Les grammes restent disponibles à tout moment, et
+l'entrée conserve l'unité choisie pour réafficher « 2 œufs » dans le journal.
+
+L'appariement par mot-clé se trompe facilement, d'où un garde-fou : un libellé
+contenant un mot de préparation (`compote`, `tarte`, `sauce`, `soupe`…) ne
+reçoit pas la portion de l'ingrédient qu'il cite. Sans lui, « compote de
+pomme » proposait « 1 pomme, 150 g ». Toute nouvelle règle doit être vérifiée
+contre les libellés CIQUAL réels, pas seulement contre l'exemple qui l'a
+motivée.
+
 ## Sauvegarde
 
 Les données ne vivent que sur l'appareil : perdre le téléphone, c'est perdre

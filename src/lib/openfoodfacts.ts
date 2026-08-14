@@ -4,6 +4,9 @@ export interface ProduitTrouve extends Nutriments {
   code: string
   nom: string
   marque?: string
+  /** Portion de l'emballage, quand elle est exploitable. */
+  portionG?: number
+  portionNom?: string
 }
 
 export type Resultat =
@@ -17,7 +20,8 @@ export type Resultat =
 const DELAI_MAX = 8000
 
 /** Seuls ces champs sont demandés : la fiche complète pèse plusieurs centaines de Ko. */
-const CHAMPS = 'product_name,product_name_fr,brands,nutriments'
+const CHAMPS =
+  'product_name,product_name_fr,brands,nutriments,serving_quantity,serving_quantity_unit'
 
 const nombre = (valeur: unknown): number | undefined =>
   typeof valeur === 'number' && Number.isFinite(valeur) ? valeur : undefined
@@ -58,12 +62,23 @@ export async function chercherProduit(code: string): Promise<Resultat> {
     if (!nom) return { etat: 'incomplet', nom: code }
     if (kcal === undefined) return { etat: 'incomplet', nom }
 
+    // Les valeurs nutritionnelles étant ramenées à 100 g, une portion en
+    // millilitres n'est exploitable qu'en l'assimilant à des grammes — vrai
+    // pour les boissons, dont la densité est proche de 1.
+    const uniteServing = produit.serving_quantity_unit
+    const servingG =
+      uniteServing === 'g' || uniteServing === 'ml'
+        ? nombre(Number(produit.serving_quantity))
+        : undefined
+
     return {
       etat: 'trouve',
       produit: {
         code,
         nom,
         marque: produit.brands?.split(',')[0]?.trim() || undefined,
+        portionG: servingG,
+        portionNom: servingG !== undefined ? 'portion' : undefined,
         kcal: Math.round(kcal * 10) / 10,
         prot: nombre(n.proteins_100g) ?? 0,
         lip: nombre(n.fat_100g) ?? 0,
