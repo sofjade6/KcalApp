@@ -1,0 +1,21 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "kcalapp",
+  "compatibility_date": "2026-08-14",
+
+  // Pas de champ `main` : l'app est entièrement statique, aucun code ne
+  // s'exécute côté serveur. Le serveur ne voit donc jamais les données, qui
+  // restent dans l'IndexedDB du téléphone.
+  "assets": {
+    "directory": "./dist/",
+
+    // Les adresses comme /reglages ou /ajouter/dejeuner sont résolues par le
+    // routeur côté client : sans ceci, un accès direct renvoie un 404.
+    //
+    // C'est le remplaçant de la règle `/* /index.html 200` d'un _redirects,
+    // que les assets statiques Workers refusent : leur gestion automatique
+    // des URL retire déjà `/index` et `.html`, ce qui ferait boucler la règle
+    // sur elle-même.
+    "not_found_handling": "single-page-application"
+  }
+}

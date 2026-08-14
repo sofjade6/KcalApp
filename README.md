@@ -117,12 +117,22 @@ qui restent dans l'IndexedDB du téléphone.
 
 Deux fichiers de configuration accompagnent le build :
 
-- `public/_redirects` renvoie toutes les URL vers `index.html`. Sans lui,
-  ouvrir `/reglages` directement donne un 404 — c'est le routeur côté client
-  qui résout ces adresses, pas le serveur.
+- `wrangler.jsonc` déclare `not_found_handling: "single-page-application"`,
+  qui sert `index.html` pour toute adresse non trouvée. Sans lui, ouvrir
+  `/reglages` directement donne un 404 — c'est le routeur côté client qui
+  résout ces adresses, pas le serveur. **Ne pas remplacer par une règle
+  `/* /index.html 200` dans un `_redirects`** : les assets statiques Workers
+  la rejettent, leur gestion automatique des URL retirant déjà `/index` et
+  `.html`, ce qui ferait boucler la règle sur elle-même.
 - `public/_headers` empêche la mise en cache du service worker et de la page
   d'entrée. Sans ça, une mise à jour peut mettre des jours à atteindre un
   téléphone qui a gardé l'ancien service worker.
+
+La config se valide sans rien déployer :
+
+```bash
+npm run build && npx wrangler deploy --dry-run
+```
 
 ## Captures automatiques (optionnel)
 
