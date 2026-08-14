@@ -1,8 +1,15 @@
+import { Suspense, lazy } from 'react'
 import { BrowserRouter, NavLink, Navigate, Route, Routes } from 'react-router-dom'
 import Aujourdhui from './ecrans/Aujourdhui'
 import Ajouter from './ecrans/Ajouter'
 import Portion from './ecrans/Portion'
 import Saisir from './ecrans/Saisir'
+
+// ZXing pèse près de 500 Ko à lui seul. Le charger à la demande évite de
+// l'imposer à l'écran du jour, qui est ouvert bien plus souvent que le scan.
+// Le service worker le précache quand même : le scan d'un produit déjà connu
+// doit fonctionner hors ligne.
+const Scanner = lazy(() => import('./ecrans/Scanner'))
 import Reglages from './ecrans/Reglages'
 
 const ONGLETS = [
@@ -40,6 +47,14 @@ export default function App() {
           <Route path="/" element={<Aujourdhui />} />
           <Route path="/ajouter/:repas" element={<Ajouter />} />
           <Route path="/saisir/:repas" element={<Saisir />} />
+          <Route
+            path="/scanner/:repas"
+            element={
+              <Suspense fallback={<p className="vue note">Chargement du scanner…</p>}>
+                <Scanner />
+              </Suspense>
+            }
+          />
           <Route path="/ajouter/:repas/:code" element={<Portion />} />
           <Route path="/entree/:id" element={<Portion />} />
           <Route path="/reglages" element={<Reglages />} />

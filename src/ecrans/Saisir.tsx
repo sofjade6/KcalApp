@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Link, useNavigate, useParams } from 'react-router-dom'
+import { Link, useNavigate, useParams, useSearchParams } from 'react-router-dom'
 import { creerAlimentManuel } from '../db'
 
 const NUTRIMENTS = [
@@ -23,6 +23,9 @@ function energieDesMacros(prot: number, lip: number, gluc: number): number {
 export default function Saisir() {
   const { repas } = useParams()
   const navigate = useNavigate()
+  // Renseigné quand on arrive ici après un scan resté sans réponse : l'aliment
+  // est alors mémorisé sous son vrai code-barres, et reconnu aux scans suivants.
+  const codeBarres = useSearchParams()[0].get('code') ?? undefined
 
   const [nom, setNom] = useState('')
   const [valeurs, setValeurs] = useState<Record<CleNutriment, string>>({
@@ -70,7 +73,10 @@ export default function Saisir() {
     if (!valide || enregistrement) return
     setEnregistrement(true)
     try {
-      const code = await creerAlimentManuel({ nom: nom.trim(), ...chiffres })
+      const code = await creerAlimentManuel(
+        { nom: nom.trim(), ...chiffres },
+        codeBarres,
+      )
       navigate(`/ajouter/${repas}/${code}`)
     } catch {
       setEnregistrement(false)
@@ -85,6 +91,13 @@ export default function Saisir() {
         </Link>
         <h1 className="vue-titre">Nouvel aliment</h1>
       </header>
+
+      {codeBarres && (
+        <p className="note">
+          Code-barres <b>{codeBarres}</b>. Une fois saisi, ce produit sera
+          reconnu directement à tes prochains scans.
+        </p>
+      )}
 
       <section className="carte">
         <label className="champ champ-large">

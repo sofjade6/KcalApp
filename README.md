@@ -56,10 +56,30 @@ La recherche compense sur trois plans, sans dictionnaire de synonymes :
   cas de `crème fraîche`, absente de la table, qui s'y nomme
   `Crème de lait, 30% MG, épaisse`.
 
-Les produits de marque ne sont pas dans CIQUAL : ils arriveront par le scan de
-codes-barres via OpenFoodFacts. En attendant — et pour tout ce qu'aucune base
-ne connaît, plat de traiteur ou recette maison — un aliment se saisit à la
-main : nom et valeurs pour 100 g. Il est mémorisé sur l'appareil, reproposé en
+## Scan de codes-barres
+
+Les produits de marque ne sont pas dans CIQUAL : ils passent par le scan.
+`BarcodeDetector` n'étant pas supporté par Safari, le décodage se fait avec
+ZXing en WebAssembly, restreint aux formats alimentaires (EAN-13, EAN-8,
+UPC-A, UPC-E) pour gagner en vitesse et en fiabilité.
+
+Le module du scanner est chargé à la demande : ZXing pèse près de 500 Ko, que
+l'écran du jour n'a pas à supporter. Le service worker le précache malgré tout,
+pour que le scan d'un produit déjà connu fonctionne hors ligne.
+
+Après lecture du code, la résolution suit cet ordre :
+
+1. **cache local** — un produit déjà scanné est resservi immédiatement, sans
+   réseau ;
+2. **OpenFoodFacts** — le produit est enregistré sur l'appareil au passage ;
+3. **saisie manuelle**, avec le code-barres en paramètre : le produit est alors
+   mémorisé sous son vrai code et reconnu à tous les scans suivants.
+
+Le troisième cas couvre aussi bien un code absent d'OpenFoodFacts qu'une fiche
+existante mais dépourvue de valeurs nutritionnelles.
+
+Pour tout ce qu'aucune base ne connaît — plat de traiteur, recette maison — un
+aliment se saisit à la main : nom et valeurs pour 100 g. Il est mémorisé sur l'appareil, reproposé en
 tête des recherches suivantes, et listé d'emblée quand la recherche est vide.
 
 La saisie contrôle la cohérence entre les macros et les calories déclarées

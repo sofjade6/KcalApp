@@ -42,7 +42,8 @@ export default function Ajouter() {
         lip: a.lip,
         gluc: a.gluc,
         cherchable: normaliser(a.nom),
-        groupe: 'Mes aliments',
+        // La marque situe mieux un produit scanné que l'étiquette générique.
+        groupe: a.marque ?? 'Mes aliments',
         perso: true,
       })),
     [mesAliments],
@@ -68,6 +69,14 @@ export default function Ajouter() {
         </Link>
         <h1 className="vue-titre">Ajouter à {nomRepas.toLowerCase()}</h1>
       </header>
+
+      <Link to={`/scanner/${repas}`} className="bouton scanner-entree">
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M3 8V5.5A1.5 1.5 0 0 1 4.5 4H7M17 4h2.5A1.5 1.5 0 0 1 21 5.5V8M21 16v2.5a1.5 1.5 0 0 1-1.5 1.5H17M7 20H4.5A1.5 1.5 0 0 1 3 18.5V16" />
+          <path d="M7 8.5v7M10.5 8.5v7M14 8.5v7M17 8.5v7" />
+        </svg>
+        Scanner un code-barres
+      </Link>
 
       <label className="recherche">
         <span className="sr-only">Rechercher un aliment</span>

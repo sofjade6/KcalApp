@@ -94,9 +94,13 @@ export const PROFIL_DEFAUT: Profil = {
  */
 export async function creerAlimentManuel(
   saisie: Nutriments & { nom: string; marque?: string },
+  /** Code-barres, quand la saisie fait suite à un scan resté sans réponse. */
+  codeBarres?: string,
 ): Promise<string> {
-  const code = `manuel-${crypto.randomUUID()}`
-  await db.aliments.add({ ...saisie, code, source: 'manuel', vuLe: Date.now() })
+  const code = codeBarres ?? `manuel-${crypto.randomUUID()}`
+  // `put` et non `add` : ressaisir un produit déjà scanné doit le corriger,
+  // pas échouer sur une clé en double.
+  await db.aliments.put({ ...saisie, code, source: 'manuel', vuLe: Date.now() })
   return code
 }
 
