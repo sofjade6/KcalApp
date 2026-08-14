@@ -43,6 +43,22 @@ src/composants/   briques d'interface réutilisables
 src/ecrans/       un fichier par onglet
 ```
 
+## Recherche d'aliments
+
+La table CIQUAL emploie un vocabulaire administratif éloigné du langage courant.
+La recherche compense sur trois plans, sans dictionnaire de synonymes :
+
+- **accents et ligatures** — `oeuf` trouve `Œuf, cru`, `pates` trouve `Pâtes` ;
+- **flexions** — jusqu'à deux caractères rognés en fin de terme, donc
+  `pâtes complètes` trouve `Pâtes sèches, au blé complet` ;
+- **repli** — si aucun aliment ne contient tous les termes, les plus proches
+  sont affichés plutôt qu'une page vide, avec une mention explicite. C'est le
+  cas de `crème fraîche`, absente de la table, qui s'y nomme
+  `Crème de lait, 30% MG, épaisse`.
+
+Les produits de marque ne sont pas dans CIQUAL : ils arriveront par le scan de
+codes-barres via OpenFoodFacts.
+
 La couleur est réservée aux données : les trois macros portent les seules
 teintes de l'app, le reste du chrome est en encre neutre. Les jauges gardent
 toujours leur étiquette chiffrée visible — c'est elle qui porte l'information

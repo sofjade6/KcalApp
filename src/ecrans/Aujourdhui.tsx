@@ -1,3 +1,4 @@
+import { Link } from 'react-router-dom'
 import { useLiveQuery } from 'dexie-react-hooks'
 import db, { REPAS, lireProfil, PROFIL_DEFAUT, type Entree } from '../db'
 import { cleDuJour, dateLongue } from '../lib/dates'
@@ -89,28 +90,39 @@ export default function Aujourdhui() {
             </div>
 
             {duRepas.length === 0 ? (
-              <p className="repas-vide">Rien de noté</p>
+              <Link to={`/ajouter/${cle}`} className="repas-vide">
+                Rien de noté — ajouter un aliment
+              </Link>
             ) : (
               <div className="lignes">
                 {duRepas.map((entree) => (
-                  <div className="ligne" key={entree.id}>
+                  <Link
+                    className="ligne"
+                    key={entree.id}
+                    to={`/entree/${entree.id}`}
+                  >
                     <span className="ligne-nom">
                       {entree.nom}
                       <span className="ligne-detail">{entree.grammes} g</span>
                     </span>
                     <span className="ligne-kcal">{kcalPortion(entree)} kcal</span>
-                  </div>
+                  </Link>
                 ))}
               </div>
+            )}
+
+            {duRepas.length > 0 && (
+              <Link to={`/ajouter/${cle}`} className="ajout-repas">
+                + Ajouter
+              </Link>
             )}
           </section>
         )
       })}
 
       <p className="note">
-        La recherche d’aliments et le scan de codes-barres arrivent à l’étape
-        suivante. En attendant, l’app s’installe déjà sur l’écran d’accueil et
-        fonctionne hors ligne.
+        Aliments issus de la table CIQUAL de l’ANSES. Le scan de codes-barres,
+        pour les produits de marque, arrive à l’étape suivante.
       </p>
     </div>
   )

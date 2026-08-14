@@ -477,6 +477,148 @@ input {
   text-align: right;
 }
 
+/* ---------- recherche & resultats ---------- */
+
+.retour {
+  font-size: 0.85rem;
+  color: var(--encre-muette);
+  text-decoration: none;
+  align-self: flex-start;
+  padding: 0.2rem 0;
+}
+
+.recherche input {
+  width: 100%;
+  background: var(--carte);
+  border: 1px solid var(--trait-fort);
+  border-radius: 10px;
+  padding: 0.7rem 0.85rem;
+  /* 16px minimum, sinon iOS zoome au focus. */
+  font-size: 16px;
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+.recherche input::placeholder {
+  color: var(--encre-muette);
+}
+
+.resultats {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.resultat {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 1rem;
+  text-align: left;
+  width: 100%;
+  padding: 0.75rem 0;
+  border-top: 1px solid var(--trait);
+}
+
+.resultat:first-child {
+  border-top: none;
+}
+
+.resultat-nom {
+  font-size: 0.93rem;
+  line-height: 1.35;
+}
+
+.resultat-groupe {
+  display: block;
+  font-size: 0.75rem;
+  color: var(--encre-muette);
+  margin-top: 0.1rem;
+}
+
+.resultat-kcal {
+  font-family: var(--mono);
+  font-variant-numeric: tabular-nums;
+  font-size: 0.88rem;
+  white-space: nowrap;
+}
+
+.resultat-kcal small {
+  font-size: 0.68rem;
+  color: var(--encre-muette);
+}
+
+/* ---------- selection de repas ---------- */
+
+.segments {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.4rem;
+}
+
+.segment {
+  padding: 0.55rem 0.5rem;
+  border: 1px solid var(--trait);
+  border-radius: 9px;
+  background: var(--carte-creuse);
+  font-size: 0.85rem;
+  color: var(--encre-douce);
+}
+
+.segment[aria-pressed='true'] {
+  background: var(--encre);
+  border-color: var(--encre);
+  color: var(--fond);
+  font-weight: 600;
+}
+
+/* ---------- actions ---------- */
+
+.actions {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+.actions .bouton {
+  width: 100%;
+}
+
+.bouton.danger {
+  background: none;
+  color: var(--alerte);
+  border: 1px solid var(--trait-fort);
+}
+
+.ajout-repas {
+  align-self: flex-start;
+  font-size: 0.85rem;
+  color: var(--encre-douce);
+  text-decoration: none;
+  padding: 0.35rem 0;
+}
+
+/* Les lignes du journal sont des liens : elles ouvrent la correction. */
+a.ligne,
+a.repas-vide {
+  text-decoration: none;
+  color: inherit;
+  display: flex;
+}
+
+a.repas-vide {
+  color: var(--encre-muette);
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
 /* Ecran encore vide : annonce ce qui arrive, sans faire semblant. */
 .a-venir {
   display: flex;

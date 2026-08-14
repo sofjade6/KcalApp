@@ -1,5 +1,7 @@
 import { BrowserRouter, NavLink, Navigate, Route, Routes } from 'react-router-dom'
 import Aujourdhui from './ecrans/Aujourdhui'
+import Ajouter from './ecrans/Ajouter'
+import Portion from './ecrans/Portion'
 import Reglages from './ecrans/Reglages'
 
 const ONGLETS = [
@@ -35,6 +37,9 @@ export default function App() {
       <div className="app">
         <Routes>
           <Route path="/" element={<Aujourdhui />} />
+          <Route path="/ajouter/:repas" element={<Ajouter />} />
+          <Route path="/ajouter/:repas/:code" element={<Portion />} />
+          <Route path="/entree/:id" element={<Portion />} />
           <Route path="/reglages" element={<Reglages />} />
           {/* Une URL inconnue ramène à l'accueil plutôt qu'à un écran blanc. */}
           <Route path="*" element={<Navigate to="/" replace />} />
