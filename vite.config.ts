@@ -33,9 +33,15 @@ export default defineConfig({
       },
     }),
   ],
+  // Sous WSL2, Vite doit ecouter sur toutes les interfaces, et accepter le
+  // domaine du tunnel HTTPS : sans `allowedHosts`, il repond « Blocked request »
+  // a toute requete venant de trycloudflare.com.
   server: {
-    // Necessaire pour joindre le serveur depuis l'iPhone : sous WSL2 Vite doit
-    // ecouter sur toutes les interfaces, pas seulement sur localhost.
     host: true,
+    allowedHosts: ['.trycloudflare.com'],
+  },
+  preview: {
+    host: true,
+    allowedHosts: ['.trycloudflare.com'],
   },
 })
