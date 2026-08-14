@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { useLiveQuery } from 'dexie-react-hooks'
-import { lireProfil, enregistrerProfil, PROFIL_DEFAUT } from '../db'
+import { Link } from 'react-router-dom'
+import { lireProfil, majProfil, PROFIL_DEFAUT } from '../db'
 
 const CHAMPS = [
   { cle: 'objectifKcal', nom: 'Calories', unite: 'kcal' },
@@ -53,8 +54,9 @@ export default function Reglages() {
     const valeur = Number(saisi)
     if (saisi.trim() === '' || !Number.isFinite(valeur) || valeur < 0) return
 
-    const { id: _id, majLe: _majLe, ...objectifs } = profil
-    enregistrerProfil({ ...objectifs, [cle]: Math.round(valeur) })
+    // Une valeur posée à la main l'emporte : le calcul issu du profil ne doit
+    // pas l'écraser au prochain rendu.
+    majProfil({ [cle]: Math.round(valeur), objectifsAuto: false })
   }
 
   return (
@@ -85,11 +87,17 @@ export default function Reglages() {
             />
           </label>
         ))}
-        <p className="note">
-          Valeurs saisies à la main pour l’instant. Le calcul automatique à
-          partir de ta taille, ton poids et ton activité arrivera avec l’écran
-          de suivi du poids.
-        </p>
+        {profil.objectifsAuto ? (
+          <p className="note">
+            Ces valeurs sont calculées depuis ton profil et suivent ton poids.
+            Les modifier ici passe en saisie manuelle.
+          </p>
+        ) : (
+          <p className="note">
+            Valeurs saisies à la main : le calcul issu du profil ne les
+            remplace plus. <Link to="/profil">Revenir au calcul automatique</Link>
+          </p>
+        )}
       </section>
 
       <section className="carte">

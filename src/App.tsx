@@ -3,6 +3,7 @@ import { BrowserRouter, NavLink, Navigate, Route, Routes } from 'react-router-do
 import Aujourdhui from './ecrans/Aujourdhui'
 import Ajouter from './ecrans/Ajouter'
 import Portion from './ecrans/Portion'
+import Profil from './ecrans/Profil'
 import Saisir from './ecrans/Saisir'
 
 // ZXing pèse près de 500 Ko à lui seul. Le charger à la demande évite de
@@ -21,6 +22,16 @@ const ONGLETS = [
         <path d="M4 6.5h16" />
         <path d="M4 12h16" />
         <path d="M4 17.5h10" />
+      </>
+    ),
+  },
+  {
+    chemin: '/profil',
+    nom: 'Profil',
+    icone: (
+      <>
+        <circle cx="12" cy="8" r="3.4" />
+        <path d="M5.5 20a6.5 6.5 0 0 1 13 0" />
       </>
     ),
   },
@@ -57,6 +68,7 @@ export default function App() {
           />
           <Route path="/ajouter/:repas/:code" element={<Portion />} />
           <Route path="/entree/:id" element={<Portion />} />
+          <Route path="/profil" element={<Profil />} />
           <Route path="/reglages" element={<Reglages />} />
           {/* Une URL inconnue ramène à l'accueil plutôt qu'à un écran blanc. */}
           <Route path="*" element={<Navigate to="/" replace />} />

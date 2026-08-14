@@ -49,12 +49,34 @@ export interface Pesee {
   kg: number
 }
 
+export type Sexe = 'femme' | 'homme'
+export type But = 'perte' | 'maintien' | 'prise'
+export type NiveauActivite =
+  | 'sedentaire'
+  | 'leger'
+  | 'modere'
+  | 'intense'
+  | 'tres-intense'
+
 export interface Profil {
   id: 'moi'
+
+  /** Données corporelles, absentes tant que l'utilisateur ne les a pas saisies. */
+  sexe?: Sexe
+  /** Date de naissance AAAA-MM-JJ — l'âge en découle et reste juste avec le temps. */
+  naissance?: string
+  tailleCm?: number
+  activite?: NiveauActivite
+  but?: But
+  poidsCible?: number
+
   objectifKcal: number
   objectifProt: number
   objectifLip: number
   objectifGluc: number
+  /** Faux dès que les objectifs ont été forcés à la main : le calcul ne les écrase plus. */
+  objectifsAuto: boolean
+
   majLe: number
 }
 
@@ -83,6 +105,7 @@ export const PROFIL_DEFAUT: Profil = {
   objectifProt: 130,
   objectifLip: 65,
   objectifGluc: 220,
+  objectifsAuto: true,
   majLe: 0,
 }
 
@@ -109,12 +132,44 @@ export async function marquerUtilise(code: string) {
   await db.aliments.update(code, { vuLe: Date.now() })
 }
 
+/**
+ * Les champs corporels sont arrivés après la première version : un profil
+ * enregistré avant ne les porte pas. La fusion avec les valeurs par défaut
+ * évite de migrer le schéma pour des champs qui ne sont pas indexés.
+ */
 export async function lireProfil(): Promise<Profil> {
-  return (await db.profil.get('moi')) ?? PROFIL_DEFAUT
+  const stocke = await db.profil.get('moi')
+  return stocke ? { ...PROFIL_DEFAUT, ...stocke } : PROFIL_DEFAUT
 }
 
-export async function enregistrerProfil(profil: Omit<Profil, 'id' | 'majLe'>) {
-  await db.profil.put({ ...profil, id: 'moi', majLe: Date.now() })
+/**
+ * Modifie une partie du profil.
+ *
+ * La transaction est indispensable : lire puis écrire sans elle laisse deux
+ * modifications rapprochées se marcher dessus — la seconde repart d'un profil
+ * lu avant que la première ne soit enregistrée, et l'efface. Renseigner
+ * plusieurs champs à la suite suffit à déclencher le cas.
+ */
+export async function majProfil(champs: Partial<Omit<Profil, 'id'>>) {
+  await db.transaction('rw', db.profil, async () => {
+    const actuel = (await db.profil.get('moi')) ?? PROFIL_DEFAUT
+    await db.profil.put({
+      ...PROFIL_DEFAUT,
+      ...actuel,
+      ...champs,
+      id: 'moi',
+      majLe: Date.now(),
+    })
+  })
+}
+
+/** Une seule pesée par jour : se repeser le même jour corrige la valeur. */
+export async function enregistrerPesee(date: string, kg: number) {
+  await db.pesees.put({ date, kg })
+}
+
+export async function supprimerPesee(date: string) {
+  await db.pesees.delete(date)
 }
 
 export default db

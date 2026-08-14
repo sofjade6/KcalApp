@@ -29,6 +29,7 @@ const DEMO = [
 
 const ECRANS = [
   { nom: 'aujourdhui', chemin: '/', attendre: '.jauge-remplissage' },
+  { nom: 'profil', chemin: '/profil', attendre: '.pesee input' },
   { nom: 'recherche', chemin: '/ajouter/dejeuner', attendre: '.recherche input' },
   { nom: 'saisir', chemin: '/saisir/dejeuner', attendre: '.champ-large input' },
   { nom: 'reglages', chemin: '/reglages', attendre: '.champ input' },

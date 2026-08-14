@@ -56,6 +56,29 @@ La recherche compense sur trois plans, sans dictionnaire de synonymes :
   cas de `crème fraîche`, absente de la table, qui s'y nomme
   `Crème de lait, 30% MG, épaisse`.
 
+## Profil, IMC et objectifs
+
+L'onglet Profil réunit les pesées, la courbe d'évolution, l'IMC et les données
+corporelles. Les objectifs caloriques en découlent (Mifflin-St Jeor × facteur
+d'activité, ajusté selon le but) et alimentent l'écran du jour.
+
+Deux garde-fous :
+
+- **L'apport visé n'est jamais placé sous le métabolisme de base.** En dessous,
+  le corps ne couvre plus ses fonctions vitales au repos et puise autant dans
+  le muscle que dans la graisse. L'écran le signale quand la borne s'applique.
+- **Un poids visé correspondant à un IMC inférieur à 18,5** est suivi malgré
+  tout, mais signalé.
+
+Modifier un objectif à la main dans Réglages coupe le calcul automatique, pour
+que le profil ne vienne pas écraser une valeur choisie. Un bouton permet d'y
+revenir.
+
+Les messages d'encouragement décrivent la tendance sans la juger : sur sept
+jours, l'eau, le sel, le sommeil et le transit pèsent facilement un kilo, et
+une variation quotidienne ne doit pas se lire comme un échec. Sans objectif
+déclaré, aucune direction n'est présentée comme « la bonne ».
+
 ## Scan de codes-barres
 
 Les produits de marque ne sont pas dans CIQUAL : ils passent par le scan.
