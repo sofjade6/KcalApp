@@ -56,6 +56,24 @@ La recherche compense sur trois plans, sans dictionnaire de synonymes :
   cas de `crème fraîche`, absente de la table, qui s'y nomme
   `Crème de lait, 30% MG, épaisse`.
 
+## Sauvegarde
+
+Les données ne vivent que sur l'appareil : perdre le téléphone, c'est perdre
+l'historique. L'export produit un fichier JSON unique contenant profil,
+journal, aliments mémorisés et pesées.
+
+Sur iPhone, l'export passe par le partage natif plutôt que par un
+téléchargement : la feuille de partage permet de ranger le fichier dans
+Fichiers ou iCloud Drive. Le téléchargement sert de repli ailleurs.
+
+La restauration **remplace** tout le contenu de l'appareil, dans une seule
+transaction — une restauration interrompue à mi-chemin laisserait un journal
+moitié ancien moitié nouveau. Le fichier est validé avant d'écraser quoi que ce
+soit, et l'écran affiche ce qu'il contient pour confirmation.
+
+Réglages rappelle la date de la dernière sauvegarde et relance au-delà de
+trente jours.
+
 ## Profil, IMC et objectifs
 
 L'onglet Profil réunit les pesées, la courbe d'évolution, l'IMC et les données

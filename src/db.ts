@@ -77,6 +77,9 @@ export interface Profil {
   /** Faux dès que les objectifs ont été forcés à la main : le calcul ne les écrase plus. */
   objectifsAuto: boolean
 
+  /** Dernier export réussi, pour savoir quand relancer l'utilisateur. */
+  derniereSauvegarde?: number
+
   majLe: number
 }
 

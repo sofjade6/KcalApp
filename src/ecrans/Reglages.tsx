@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { useLiveQuery } from 'dexie-react-hooks'
 import { Link } from 'react-router-dom'
 import { lireProfil, majProfil, PROFIL_DEFAUT } from '../db'
+import SauvegardeCarte from '../composants/Sauvegarde'
 
 const CHAMPS = [
   { cle: 'objectifKcal', nom: 'Calories', unite: 'kcal' },
@@ -122,13 +123,11 @@ export default function Reglages() {
           </button>
         )}
         <p className="note">
-          Tout reste sur ce téléphone : aucun compte, aucun serveur.{' '}
-          <b>
-            Rien n’est sauvegardé ailleurs — l’export des données arrivera, et
-            c’est lui qui protégera ton historique.
-          </b>
+          Tout reste sur ce téléphone : aucun compte, aucun serveur.
         </p>
       </section>
+
+      <SauvegardeCarte profil={profil} />
 
       <p className="note">
         Aliments : table CIQUAL 2020 de l’ANSES (Licence Ouverte) et
