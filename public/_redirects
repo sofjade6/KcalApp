@@ -1,0 +1,5 @@
+# L'app utilise des URL réelles (/reglages, /ajouter/dejeuner…) et non des
+# ancres. Sans cette règle, ouvrir une de ces adresses directement renvoie un
+# 404 : le fichier n'existe pas côté serveur, c'est le routeur qui la résout.
+# Les fichiers statiques réels sont servis avant cette règle.
+/*    /index.html    200

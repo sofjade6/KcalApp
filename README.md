@@ -101,6 +101,29 @@ cloudflared tunnel --url http://localhost:5173
 Ouvrir l'URL `https://…trycloudflare.com` sur l'iPhone, puis **Partager →
 Sur l'écran d'accueil** pour l'installer en mode standalone.
 
+## Déploiement
+
+L'app est hébergée sur Cloudflare Pages, connecté à ce dépôt : **tout push sur
+`main` déclenche une mise en ligne**. Réglages du projet Pages :
+
+| Réglage | Valeur |
+| --- | --- |
+| Commande de build | `npm run build` |
+| Dossier de sortie | `dist` |
+| Version de Node | lue dans `.node-version` |
+
+Le serveur ne sert que des fichiers statiques : il ne voit jamais les données,
+qui restent dans l'IndexedDB du téléphone.
+
+Deux fichiers de configuration accompagnent le build :
+
+- `public/_redirects` renvoie toutes les URL vers `index.html`. Sans lui,
+  ouvrir `/reglages` directement donne un 404 — c'est le routeur côté client
+  qui résout ces adresses, pas le serveur.
+- `public/_headers` empêche la mise en cache du service worker et de la page
+  d'entrée. Sans ça, une mise à jour peut mettre des jours à atteindre un
+  téléphone qui a gardé l'ancien service worker.
+
 ## Captures automatiques (optionnel)
 
 Playwright est installé mais son Chromium ne démarre pas encore : il manque des

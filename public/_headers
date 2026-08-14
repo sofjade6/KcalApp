@@ -1,0 +1,24 @@
+# Le service worker et la page d'entrée doivent être revalidés à chaque visite,
+# sinon une mise à jour de l'app peut mettre des jours à atteindre un téléphone
+# qui a gardé l'ancien service worker en cache.
+/sw.js
+  Cache-Control: no-cache
+
+/registerSW.js
+  Cache-Control: no-cache
+
+/index.html
+  Cache-Control: no-cache
+
+/manifest.webmanifest
+  Cache-Control: no-cache
+
+# La base CIQUAL est révisée par le service worker, mais elle est aussi
+# régénérable : on la revalide plutôt que de la figer sur le CDN.
+/data/*
+  Cache-Control: no-cache
+
+# Ces fichiers portent une empreinte dans leur nom : ils ne changent jamais
+# sans changer d'URL.
+/assets/*
+  Cache-Control: public, max-age=31536000, immutable
