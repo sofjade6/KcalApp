@@ -11,6 +11,10 @@ export interface AlimentCiqual {
   prot?: number
   lip?: number
   gluc?: number
+  fib?: number
+  sel?: number
+  suc?: number
+  ags?: number
 }
 
 export interface AlimentIndexe extends AlimentCiqual {

@@ -15,7 +15,23 @@ export interface Nutriments {
   prot: number
   lip: number
   gluc: number
+  /**
+   * Nutriments secondaires. Facultatifs : les entrées enregistrées avant leur
+   * arrivée n'en portent pas, et toutes les sources ne les fournissent pas.
+   */
+  fib?: number
+  sel?: number
+  suc?: number
+  ags?: number
 }
+
+/** Nutriments secondaires, avec leur libellé et leur unité d'affichage. */
+export const SECONDAIRES = [
+  { cle: 'fib', nom: 'Fibres', unite: 'g' },
+  { cle: 'suc', nom: 'Sucres', unite: 'g' },
+  { cle: 'ags', nom: 'Acides gras saturés', unite: 'g' },
+  { cle: 'sel', nom: 'Sel', unite: 'g' },
+] as const
 
 /**
  * Une portion consommée. On stocke les valeurs pour 100 g plus la quantité
@@ -58,6 +74,31 @@ export interface Pesee {
   kg: number
 }
 
+/** Plat composé, mémorisé pour être réutilisé en une fois. */
+export interface Recette extends Nutriments {
+  id?: number
+  nom: string
+  /** Poids total de la préparation, servant de base au calcul pour 100 g. */
+  poidsTotal: number
+  ingredients: { nom: string; grammes: number }[]
+  majLe: number
+}
+
+/** Verres d'eau bus dans la journée. */
+export interface Hydratation {
+  date: string
+  verres: number
+}
+
+/** Dépense ajoutée au budget du jour. */
+export interface Activite {
+  id?: number
+  date: string
+  nom: string
+  kcal: number
+  creeLe: number
+}
+
 export type Sexe = 'femme' | 'homme'
 export type But = 'perte' | 'maintien' | 'prise'
 export type NiveauActivite =
@@ -97,6 +138,9 @@ const db = new Dexie('kcalapp') as Dexie & {
   entrees: EntityTable<Entree, 'id'>
   aliments: EntityTable<AlimentEnCache, 'code'>
   pesees: EntityTable<Pesee, 'date'>
+  recettes: EntityTable<Recette, 'id'>
+  hydratation: EntityTable<Hydratation, 'date'>
+  activites: EntityTable<Activite, 'id'>
 }
 
 db.version(1).stores({
@@ -105,6 +149,14 @@ db.version(1).stores({
   entrees: '++id, date, [date+repas]',
   aliments: 'code, nom, vuLe',
   pesees: 'date',
+})
+
+// Les tables ajoutées sont vides au départ : aucune reprise de données à
+// prévoir, seuls les index changent.
+db.version(2).stores({
+  recettes: '++id, nom, majLe',
+  hydratation: 'date',
+  activites: '++id, date',
 })
 
 /**
@@ -182,6 +234,15 @@ export async function enregistrerPesee(date: string, kg: number) {
 
 export async function supprimerPesee(date: string) {
   await db.pesees.delete(date)
+}
+
+export async function majHydratation(date: string, verres: number) {
+  if (verres <= 0) await db.hydratation.delete(date)
+  else await db.hydratation.put({ date, verres })
+}
+
+export async function ajouterActivite(date: string, nom: string, kcal: number) {
+  await db.activites.add({ date, nom, kcal, creeLe: Date.now() })
 }
 
 export default db

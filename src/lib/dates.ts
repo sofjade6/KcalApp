@@ -18,3 +18,31 @@ export function dateLongue(date = new Date()): string {
     month: 'long',
   })
 }
+
+/** Objet Date à midi : à minuit, un décalage d'heure d'été change de jour. */
+export function versDate(cle: string): Date {
+  return new Date(`${cle}T12:00:00`)
+}
+
+export function decalerJour(cle: string, jours: number): string {
+  const d = versDate(cle)
+  d.setDate(d.getDate() + jours)
+  return cleDuJour(d)
+}
+
+export function estAujourdhui(cle: string): boolean {
+  return cle === cleDuJour()
+}
+
+/** Libellé du jour : « aujourd'hui », « hier », sinon la date. */
+export function libelleJour(cle: string): string {
+  if (estAujourdhui(cle)) return 'Aujourd’hui'
+  if (cle === decalerJour(cleDuJour(), -1)) return 'Hier'
+  if (cle === decalerJour(cleDuJour(), 1)) return 'Demain'
+  return dateLongue(versDate(cle))
+}
+
+/** Les `n` clés de jour se terminant aujourd'hui, de la plus ancienne à la plus récente. */
+export function derniersJours(n: number, fin = cleDuJour()): string[] {
+  return Array.from({ length: n }, (_, i) => decalerJour(fin, i - n + 1))
+}

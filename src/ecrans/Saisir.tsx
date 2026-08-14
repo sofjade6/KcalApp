@@ -25,7 +25,10 @@ export default function Saisir() {
   const navigate = useNavigate()
   // Renseigné quand on arrive ici après un scan resté sans réponse : l'aliment
   // est alors mémorisé sous son vrai code-barres, et reconnu aux scans suivants.
-  const codeBarres = useSearchParams()[0].get('code') ?? undefined
+  const parametres = useSearchParams()[0]
+  const codeBarres = parametres.get('code') ?? undefined
+  const jour = parametres.get('jour')
+  const suffixe = jour ? `?jour=${jour}` : ''
 
   const [nom, setNom] = useState('')
   const [valeurs, setValeurs] = useState<Record<CleNutriment, string>>({
@@ -77,7 +80,7 @@ export default function Saisir() {
         { nom: nom.trim(), ...chiffres },
         codeBarres,
       )
-      navigate(`/ajouter/${repas}/${code}`)
+      navigate(`/ajouter/${repas}/${code}${suffixe}`)
     } catch {
       setEnregistrement(false)
     }
@@ -86,7 +89,7 @@ export default function Saisir() {
   return (
     <div className="vue">
       <header className="vue-entete">
-        <Link to={`/ajouter/${repas}`} className="retour">
+        <Link to={`/ajouter/${repas}${suffixe}`} className="retour">
           ← Recherche
         </Link>
         <h1 className="vue-titre">Nouvel aliment</h1>

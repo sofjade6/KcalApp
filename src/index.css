@@ -652,6 +652,120 @@ a.repas-vide {
   padding: 0.75rem 0.9rem;
 }
 
+/* ---------- navigation entre les jours ---------- */
+
+.jour-nav {
+  display: grid;
+  grid-template-columns: 2.5rem minmax(0, 1fr) 2.5rem;
+  align-items: center;
+  margin-bottom: 0.2rem;
+}
+
+.jour-fleche {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 2.5rem;
+  font-size: 1.5rem;
+  line-height: 1;
+  color: var(--encre-douce);
+  text-decoration: none;
+  border-radius: 8px;
+}
+
+.jour-fleche[aria-disabled='true'] {
+  opacity: 0.25;
+  pointer-events: none;
+}
+
+.jour-nav .vue-date {
+  text-align: center;
+}
+
+.jour-nav .vue-date small {
+  font-family: var(--sans);
+  letter-spacing: 0;
+  text-transform: none;
+  margin-left: 0.4rem;
+}
+
+.jour-retour {
+  display: block;
+  font-size: 0.8rem;
+  font-weight: 400;
+  letter-spacing: 0;
+  color: var(--encre-muette);
+  margin-top: 0.15rem;
+}
+
+.vedette-bonus {
+  color: var(--encre-muette);
+}
+
+.jauge-part {
+  color: var(--encre-muette);
+  margin-right: 0.5rem;
+}
+
+.repas-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem 1.1rem;
+  padding-top: 0.15rem;
+}
+
+.repas-actions a {
+  font-size: 0.83rem;
+  color: var(--encre-douce);
+  text-decoration: none;
+}
+
+/* ---------- eau ---------- */
+
+.verres {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+
+.verre {
+  width: 2.4rem;
+  height: 2.4rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--trait);
+  border-radius: 10px;
+  background: var(--carte-creuse);
+}
+
+.verre svg {
+  width: 20px;
+  height: 20px;
+  stroke: var(--encre-muette);
+  fill: none;
+  stroke-width: 1.6;
+  stroke-linejoin: round;
+}
+
+.verre[aria-pressed='true'] {
+  border-color: var(--prot);
+  background: color-mix(in srgb, var(--prot) 14%, transparent);
+}
+
+.verre[aria-pressed='true'] svg {
+  stroke: var(--prot);
+  fill: color-mix(in srgb, var(--prot) 35%, transparent);
+}
+
+.ligne-retirer {
+  margin-left: 0.6rem;
+  color: var(--encre-muette);
+  font-size: 1.1rem;
+  line-height: 1;
+  padding: 0 0.2rem;
+}
+
 /* ---------- portions usuelles ---------- */
 
 .portions {

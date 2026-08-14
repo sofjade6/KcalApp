@@ -5,6 +5,8 @@ interface Props {
   unite: string
   /** Variable CSS portant la teinte, ex. `var(--prot)`. */
   teinte: string
+  /** Part de l'énergie du jour apportée par ce macronutriment, en pourcentage. */
+  pourcentage?: number
 }
 
 /**
@@ -12,8 +14,8 @@ interface Props {
  * elle porte l'identité de la mesure quand la teinte seule ne suffit pas
  * (contraste faible, daltonisme, impression).
  */
-export default function Jauge({ nom, valeur, objectif, unite, teinte }: Props) {
-  const part = objectif > 0 ? valeur / objectif : 0
+export default function Jauge({ nom, valeur, objectif, unite, teinte, pourcentage }: Props) {
+  const remplissage = objectif > 0 ? valeur / objectif : 0
   const arrondie = Math.round(valeur)
 
   return (
@@ -24,6 +26,9 @@ export default function Jauge({ nom, valeur, objectif, unite, teinte }: Props) {
           {nom}
         </span>
         <span className="jauge-valeur">
+          {pourcentage !== undefined && (
+            <span className="jauge-part">{pourcentage} %</span>
+          )}
           <b>{arrondie}</b> / {objectif} {unite}
         </span>
       </div>
@@ -40,7 +45,7 @@ export default function Jauge({ nom, valeur, objectif, unite, teinte }: Props) {
             dans l'étiquette, qui affiche la valeur réelle. */}
         <div
           className="jauge-remplissage"
-          style={{ width: `${Math.min(part, 1) * 100}%` }}
+          style={{ width: `${Math.min(remplissage, 1) * 100}%` }}
         />
       </div>
     </div>

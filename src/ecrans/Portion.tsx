@@ -1,16 +1,19 @@
 import { useEffect, useState } from 'react'
-import { Link, useNavigate, useParams } from 'react-router-dom'
-import db, { REPAS, marquerUtilise, type Entree, type Repas } from '../db'
+import { Link, useNavigate, useParams, useSearchParams } from 'react-router-dom'
+import db, {
+  REPAS,
+  SECONDAIRES,
+  marquerUtilise,
+  type Entree,
+  type Nutriments,
+  type Repas,
+} from '../db'
 import { chargerCiqual } from '../lib/ciqual'
-import { cleDuJour } from '../lib/dates'
+import { cleDuJour, libelleJour } from '../lib/dates'
 import { libellePortion, portionsPour, type PortionUsuelle } from '../lib/portions'
 
-interface Brouillon {
+interface Brouillon extends Nutriments {
   nom: string
-  kcal: number
-  prot: number
-  lip: number
-  gluc: number
   code?: string
   source: Entree['source']
   portionG?: number
@@ -24,6 +27,10 @@ interface Brouillon {
 export default function Portion() {
   const { repas: repasUrl, code, id } = useParams()
   const navigate = useNavigate()
+  // Jour visé, transmis par l'écran appelant : on peut compléter une journée
+  // passée aussi bien que celle du jour.
+  const jour = useSearchParams()[0].get('jour') ?? cleDuJour()
+  const retour = jour === cleDuJour() ? '/' : `/jour/${jour}`
   const modeEdition = id !== undefined
 
   const [aliment, setAliment] = useState<Brouillon | null>(null)
@@ -49,6 +56,10 @@ export default function Portion() {
           prot: entree.prot,
           lip: entree.lip,
           gluc: entree.gluc,
+          fib: entree.fib,
+          sel: entree.sel,
+          suc: entree.suc,
+          ags: entree.ags,
           code: entree.code,
           source: entree.source,
         })
@@ -75,6 +86,10 @@ export default function Portion() {
               prot: local.prot,
               lip: local.lip,
               gluc: local.gluc,
+              fib: local.fib,
+              sel: local.sel,
+              suc: local.suc,
+              ags: local.ags,
               code: local.code,
               source: local.source,
             })
@@ -90,6 +105,10 @@ export default function Portion() {
             prot: trouve.prot ?? 0,
             lip: trouve.lip ?? 0,
             gluc: trouve.gluc ?? 0,
+            fib: trouve.fib,
+            sel: trouve.sel,
+            suc: trouve.suc,
+            ags: trouve.ags,
             code: trouve.c,
             source: 'ciqual',
           })
@@ -106,8 +125,8 @@ export default function Portion() {
     return (
       <div className="vue">
         <header className="vue-entete">
-          <Link to="/" className="retour">
-            ← Aujourd’hui
+          <Link to={retour} className="retour">
+            ← Retour
           </Link>
         </header>
         <p className="repas-vide">{erreur}</p>
@@ -145,10 +164,18 @@ export default function Portion() {
   }
 
   const apercu = [
-    { nom: 'Calories', valeur: aliment.kcal * facteur, unite: 'kcal' },
-    { nom: 'Protéines', valeur: aliment.prot * facteur, unite: 'g' },
-    { nom: 'Lipides', valeur: aliment.lip * facteur, unite: 'g' },
-    { nom: 'Glucides', valeur: aliment.gluc * facteur, unite: 'g' },
+    { nom: 'Calories', valeur: aliment.kcal * facteur, unite: 'kcal', decimales: 0 },
+    { nom: 'Protéines', valeur: aliment.prot * facteur, unite: 'g', decimales: 0 },
+    { nom: 'Lipides', valeur: aliment.lip * facteur, unite: 'g', decimales: 0 },
+    { nom: 'Glucides', valeur: aliment.gluc * facteur, unite: 'g', decimales: 0 },
+    // Le sel se compte en dixièmes de gramme : l'arrondi à l'unité
+    // afficherait 0 g pour la quasi-totalité des aliments.
+    ...SECONDAIRES.filter(({ cle }) => aliment[cle] !== undefined).map(({ cle, nom, unite }) => ({
+      nom,
+      valeur: aliment[cle]! * facteur,
+      unite,
+      decimales: cle === 'sel' ? 2 : 1,
+    })),
   ]
 
   async function enregistrer() {
@@ -169,7 +196,7 @@ export default function Portion() {
       })
     } else {
       await db.entrees.add({
-        date: cleDuJour(),
+        date: jour,
         repas,
         nom: aliment.nom,
         grammes: quantite,
@@ -178,6 +205,10 @@ export default function Portion() {
         prot: aliment.prot,
         lip: aliment.lip,
         gluc: aliment.gluc,
+        fib: aliment.fib,
+        sel: aliment.sel,
+        suc: aliment.suc,
+        ags: aliment.ags,
         code: aliment.code,
         source: aliment.source,
         creeLe: Date.now(),
@@ -186,21 +217,24 @@ export default function Portion() {
       // qui n'a pas d'entrée dans la table locale.
       if (aliment.code) await marquerUtilise(aliment.code)
     }
-    navigate('/')
+    navigate(retour)
   }
 
   async function supprimer() {
     if (occupe) return
     setOccupe(true)
     await db.entrees.delete(Number(id))
-    navigate('/')
+    navigate(retour)
   }
 
   return (
     <div className="vue">
       <header className="vue-entete">
-        <Link to={modeEdition ? '/' : `/ajouter/${repasUrl}`} className="retour">
-          ← {modeEdition ? 'Aujourd’hui' : 'Recherche'}
+        <Link
+          to={modeEdition ? retour : `/ajouter/${repasUrl}?jour=${jour}`}
+          className="retour"
+        >
+          ← {modeEdition ? 'Retour' : 'Recherche'}
         </Link>
         <h1 className="vue-titre">{aliment.nom}</h1>
       </header>
@@ -263,6 +297,12 @@ export default function Portion() {
           </label>
         )}
 
+        {jour !== cleDuJour() && (
+          <p className="note">
+            Ajout au <b>{libelleJour(jour).toLowerCase()}</b>.
+          </p>
+        )}
+
         <div className="segments" role="group" aria-label="Repas">
           {REPAS.map(({ cle, nom }) => (
             <button
@@ -280,11 +320,11 @@ export default function Portion() {
       <section className="carte">
         <h2 className="carte-titre">Pour {valide ? quantite : '—'} g</h2>
         <dl>
-          {apercu.map(({ nom, valeur, unite }) => (
+          {apercu.map(({ nom, valeur, unite, decimales }) => (
             <div className="etat" key={nom}>
               <dt>{nom}</dt>
               <dd>
-                {valide ? Math.round(valeur) : '—'} {unite}
+                {valide ? valeur.toFixed(decimales).replace('.', ',') : '—'} {unite}
               </dd>
             </div>
           ))}

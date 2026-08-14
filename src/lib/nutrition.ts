@@ -11,19 +11,43 @@ export function portion(entree: Entree): Nutriments {
   }
 }
 
+/**
+ * Cumul d'un ensemble d'entrées.
+ *
+ * Les nutriments secondaires ne sont additionnés que si au moins une entrée
+ * les porte : un total de 0 g de fibres est trompeur quand la vraie réponse
+ * est « non renseigné ».
+ */
 export function cumuler(entrees: Entree[]): Nutriments {
-  return entrees.reduce<Nutriments>(
-    (total, entree) => {
-      const p = portion(entree)
-      return {
-        kcal: total.kcal + p.kcal,
-        prot: total.prot + p.prot,
-        lip: total.lip + p.lip,
-        gluc: total.gluc + p.gluc,
-      }
-    },
-    { kcal: 0, prot: 0, lip: 0, gluc: 0 },
-  )
+  const total: Nutriments = { kcal: 0, prot: 0, lip: 0, gluc: 0 }
+
+  for (const entree of entrees) {
+    const facteur = entree.grammes / 100
+    total.kcal += entree.kcal * facteur
+    total.prot += entree.prot * facteur
+    total.lip += entree.lip * facteur
+    total.gluc += entree.gluc * facteur
+
+    for (const cle of ['fib', 'sel', 'suc', 'ags'] as const) {
+      const valeur = entree[cle]
+      if (valeur !== undefined) total[cle] = (total[cle] ?? 0) + valeur * facteur
+    }
+  }
+
+  return total
+}
+
+/** Part de l'énergie apportée par chaque macronutriment, en pourcentage. */
+export function repartition(n: Nutriments): { prot: number; lip: number; gluc: number } | null {
+  // Les facteurs Atwater plutôt que les kcal déclarées : la somme des macros
+  // doit faire 100 %, ce que l'énergie mesurée ne garantit pas.
+  const energie = n.prot * 4 + n.lip * 9 + n.gluc * 4
+  if (energie <= 0) return null
+  return {
+    prot: Math.round((n.prot * 4 * 100) / energie),
+    lip: Math.round((n.lip * 9 * 100) / energie),
+    gluc: Math.round((n.gluc * 4 * 100) / energie),
+  }
 }
 
 /**

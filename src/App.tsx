@@ -1,6 +1,7 @@
 import { Suspense, lazy } from 'react'
 import { BrowserRouter, NavLink, Navigate, Route, Routes } from 'react-router-dom'
-import Aujourdhui from './ecrans/Aujourdhui'
+import Jour from './ecrans/Jour'
+import Copier from './ecrans/Copier'
 import Ajouter from './ecrans/Ajouter'
 import Portion from './ecrans/Portion'
 import Profil from './ecrans/Profil'
@@ -55,7 +56,10 @@ export default function App() {
     <BrowserRouter>
       <div className="app">
         <Routes>
-          <Route path="/" element={<Aujourdhui />} />
+          <Route path="/" element={<Jour />} />
+          <Route path="/jour/:date" element={<Jour />} />
+          <Route path="/copier" element={<Copier />} />
+          <Route path="/copier/:repas" element={<Copier />} />
           <Route path="/ajouter/:repas" element={<Ajouter />} />
           <Route path="/saisir/:repas" element={<Saisir />} />
           <Route
