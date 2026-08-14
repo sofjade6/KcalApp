@@ -1,0 +1,494 @@
+/* Jetons de l'app.
+   La couleur est reservee aux donnees : les macros portent les trois teintes
+   categorielles, tout le reste du chrome est en encre neutre. */
+:root {
+  color-scheme: light;
+
+  --fond: #f4f5f3;
+  --carte: #ffffff;
+  --carte-creuse: #eceeea;
+  --trait: #dcdfd9;
+  --trait-fort: #c2c7bd;
+
+  --encre: #0f1311;
+  --encre-douce: #4c534f;
+  --encre-muette: #7d857f;
+
+  /* Jauge des calories : encre neutre, pour ne pas se faire passer
+     pour une quatrieme macro. */
+  --jauge-total: #2f3733;
+
+  --prot: #2a78d6;
+  --lip: #eb6834;
+  --gluc: #1baf7a;
+
+  --alerte: #a33a26;
+
+  --sans: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+
+  --rayon: 14px;
+  --barre-hauteur: 3.5rem;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    color-scheme: dark;
+
+    --fond: #0d1013;
+    --carte: #161a1e;
+    --carte-creuse: #1e2429;
+    --trait: #262d32;
+    --trait-fort: #3a444a;
+
+    --encre: #e8ecea;
+    --encre-douce: #b2bcb8;
+    --encre-muette: #828e89;
+
+    --jauge-total: #d3dbd7;
+
+    /* Memes teintes, calees pour le fond sombre — pas une inversion. */
+    --prot: #3987e5;
+    --lip: #d95926;
+    --gluc: #199e70;
+
+    --alerte: #e08772;
+  }
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  background: var(--fond);
+  color: var(--encre);
+  font-family: var(--sans);
+  font-size: 16px;
+  line-height: 1.5;
+  /* Evite le rebond elastique de la page entiere en mode standalone. */
+  overscroll-behavior-y: none;
+}
+
+button {
+  font: inherit;
+  color: inherit;
+  background: none;
+  border: none;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+}
+
+input {
+  font: inherit;
+  color: inherit;
+}
+
+:focus-visible {
+  outline: 2px solid var(--encre);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* ---------- ossature ---------- */
+
+.app {
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+}
+
+.vue {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  padding: calc(env(safe-area-inset-top) + 1.25rem) 1.1rem
+    calc(var(--barre-hauteur) + env(safe-area-inset-bottom) + 2rem);
+  max-width: 34rem;
+  width: 100%;
+  margin: 0 auto;
+}
+
+.vue-entete {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+}
+
+.vue-date {
+  font-size: 0.78rem;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  color: var(--encre-muette);
+  font-family: var(--mono);
+}
+
+.vue-titre {
+  font-size: 1.7rem;
+  font-weight: 650;
+  letter-spacing: -0.02em;
+}
+
+/* ---------- barre d'onglets ---------- */
+
+.onglets {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 10;
+  display: flex;
+  background: color-mix(in srgb, var(--carte) 88%, transparent);
+  -webkit-backdrop-filter: saturate(180%) blur(18px);
+  backdrop-filter: saturate(180%) blur(18px);
+  border-top: 1px solid var(--trait);
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+.onglet {
+  flex: 1;
+  height: var(--barre-hauteur);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.15rem;
+  color: var(--encre-muette);
+  font-size: 0.66rem;
+  letter-spacing: 0.03em;
+  text-decoration: none;
+}
+
+.onglet svg {
+  width: 22px;
+  height: 22px;
+  stroke: currentColor;
+  fill: none;
+  stroke-width: 1.7;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.onglet[aria-current="page"] {
+  color: var(--encre);
+  font-weight: 600;
+}
+
+/* ---------- cartes ---------- */
+
+.carte {
+  background: var(--carte);
+  border: 1px solid var(--trait);
+  border-radius: var(--rayon);
+  padding: 1.1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.carte-titre {
+  font-family: var(--mono);
+  font-size: 0.68rem;
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
+  color: var(--encre-muette);
+  font-weight: 600;
+}
+
+/* ---------- chiffre vedette ---------- */
+
+.vedette {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+
+.vedette-ligne {
+  display: flex;
+  align-items: baseline;
+  gap: 0.4rem;
+}
+
+.vedette-valeur {
+  font-size: 3.1rem;
+  font-weight: 680;
+  line-height: 1;
+  letter-spacing: -0.035em;
+}
+
+.vedette-unite {
+  font-size: 1rem;
+  color: var(--encre-muette);
+}
+
+.vedette-appui {
+  font-size: 0.92rem;
+  color: var(--encre-douce);
+}
+
+.vedette-appui b {
+  color: var(--encre);
+  font-weight: 600;
+}
+
+.vedette-appui.depasse b {
+  color: var(--alerte);
+}
+
+/* ---------- jauges ---------- */
+
+.jauges {
+  display: flex;
+  flex-direction: column;
+  gap: 0.9rem;
+}
+
+.jauge {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+/* Etiquette toujours visible : c'est elle qui porte l'identite quand le
+   contraste de la teinte seule ne suffit pas (regle de secours du validateur). */
+.jauge-tete {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 1rem;
+  font-size: 0.85rem;
+}
+
+.jauge-nom {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  color: var(--encre-douce);
+}
+
+.jauge-pastille {
+  width: 9px;
+  height: 9px;
+  border-radius: 2px;
+  background: var(--teinte);
+  flex: none;
+}
+
+.jauge-valeur {
+  font-family: var(--mono);
+  font-variant-numeric: tabular-nums;
+  color: var(--encre-muette);
+  font-size: 0.8rem;
+}
+
+.jauge-valeur b {
+  color: var(--encre);
+  font-weight: 600;
+}
+
+.jauge-piste {
+  height: 7px;
+  border-radius: 4px;
+  background: var(--carte-creuse);
+  overflow: hidden;
+}
+
+.jauge-remplissage {
+  height: 100%;
+  border-radius: 4px;
+  background: var(--teinte);
+  transition: width 240ms ease-out;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .jauge-remplissage {
+    transition: none;
+  }
+}
+
+/* ---------- repas ---------- */
+
+.repas {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.repas-tete {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 1rem;
+}
+
+.repas-nom {
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.repas-kcal {
+  font-family: var(--mono);
+  font-variant-numeric: tabular-nums;
+  font-size: 0.82rem;
+  color: var(--encre-muette);
+}
+
+.repas-vide {
+  font-size: 0.88rem;
+  color: var(--encre-muette);
+  padding: 0.7rem 0.85rem;
+  border: 1px dashed var(--trait-fort);
+  border-radius: 10px;
+}
+
+.lignes {
+  display: flex;
+  flex-direction: column;
+}
+
+.ligne {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 1rem;
+  padding: 0.6rem 0;
+  border-top: 1px solid var(--trait);
+}
+
+.ligne:first-child {
+  border-top: none;
+}
+
+.ligne-nom {
+  font-size: 0.92rem;
+}
+
+.ligne-detail {
+  display: block;
+  font-size: 0.76rem;
+  color: var(--encre-muette);
+}
+
+.ligne-kcal {
+  font-family: var(--mono);
+  font-variant-numeric: tabular-nums;
+  font-size: 0.85rem;
+  white-space: nowrap;
+}
+
+/* ---------- formulaires & boutons ---------- */
+
+.champ {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.75rem 0;
+  border-top: 1px solid var(--trait);
+}
+
+.champ:first-of-type {
+  border-top: none;
+}
+
+.champ-nom {
+  font-size: 0.93rem;
+}
+
+.champ-nom small {
+  display: block;
+  font-size: 0.76rem;
+  color: var(--encre-muette);
+}
+
+.champ input {
+  width: 6.5rem;
+  text-align: right;
+  font-family: var(--mono);
+  font-variant-numeric: tabular-nums;
+  background: var(--carte-creuse);
+  border: 1px solid var(--trait);
+  border-radius: 8px;
+  padding: 0.45rem 0.6rem;
+  /* 16px minimum, sinon iOS zoome au focus. */
+  font-size: 16px;
+}
+
+.bouton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  background: var(--encre);
+  color: var(--fond);
+  border-radius: 10px;
+  padding: 0.7rem 1rem;
+  font-size: 0.92rem;
+  font-weight: 600;
+}
+
+.bouton[disabled] {
+  opacity: 0.45;
+  cursor: default;
+}
+
+.bouton.discret {
+  background: var(--carte-creuse);
+  color: var(--encre);
+  border: 1px solid var(--trait);
+}
+
+.note {
+  font-size: 0.83rem;
+  color: var(--encre-muette);
+  line-height: 1.5;
+}
+
+.note b {
+  color: var(--encre-douce);
+  font-weight: 600;
+}
+
+.etat {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  font-size: 0.85rem;
+  padding: 0.4rem 0;
+}
+
+.etat dt {
+  color: var(--encre-muette);
+}
+
+.etat dd {
+  font-family: var(--mono);
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+}
+
+/* Ecran encore vide : annonce ce qui arrive, sans faire semblant. */
+.a-venir {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  align-items: flex-start;
+  padding: 1.6rem 1.1rem;
+  border: 1px dashed var(--trait-fort);
+  border-radius: var(--rayon);
+}
+
+.a-venir h2 {
+  font-size: 1rem;
+  font-weight: 600;
+}
