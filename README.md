@@ -62,11 +62,13 @@ L'écran du jour est navigable : une journée passée se complète et se corrige
 comme celle du jour. Le jour visé circule par l'URL (`?jour=`) à travers la
 recherche, le scan, la saisie et l'écran de quantité.
 
+La journée est **une seule liste d'aliments**, sans découpage en repas.
+
 Trois raccourcis réduisent la saisie quotidienne : les **aliments récents**,
 reproposés en tête de recherche et réajoutables d'un geste avec la quantité de
-la dernière fois ; la **copie d'un repas ou d'une journée** depuis un jour
-précédent ; et les **recettes**, un repas déjà noté transformé en aliment
-réutilisable dont on pèse ensuite sa part.
+la dernière fois ; la **copie d'une journée** précédente ; et les **recettes**,
+des aliments déjà notés transformés en un aliment réutilisable dont on pèse
+ensuite sa part.
 
 Une recette est stockée comme un aliment mémorisé ordinaire — elle hérite ainsi
 de la recherche, de la résolution et des portions, sans seconde voie à

@@ -1,12 +1,10 @@
 import { useEffect, useState } from 'react'
 import { Link, useNavigate, useParams, useSearchParams } from 'react-router-dom'
 import db, {
-  REPAS,
   SECONDAIRES,
   marquerUtilise,
   type Entree,
   type Nutriments,
-  type Repas,
 } from '../db'
 import { chargerCiqual } from '../lib/ciqual'
 import { cleDuJour, libelleJour } from '../lib/dates'
@@ -25,7 +23,7 @@ interface Brouillon extends Nutriments {
  * Les deux cas partagent le même écran : c'est le même geste.
  */
 export default function Portion() {
-  const { repas: repasUrl, code, id } = useParams()
+  const { code, id } = useParams()
   const navigate = useNavigate()
   // Jour visé, transmis par l'écran appelant : on peut compléter une journée
   // passée aussi bien que celle du jour.
@@ -41,7 +39,6 @@ export default function Portion() {
   const [unite, setUnite] = useState<PortionUsuelle | null>(null)
   const [nombre, setNombre] = useState(1)
   const [occupe, setOccupe] = useState(false)
-  const [repas, setRepas] = useState<Repas>((repasUrl as Repas) ?? 'dejeuner')
 
   useEffect(() => {
     let vivant = true
@@ -64,7 +61,6 @@ export default function Portion() {
           source: entree.source,
         })
         setGrammes(String(entree.grammes))
-        setRepas(entree.repas)
         if (entree.portion) {
           setUnite({ nom: entree.portion.nom, grammes: entree.portion.grammes })
           setNombre(entree.portion.nombre)
@@ -191,13 +187,11 @@ export default function Portion() {
     if (modeEdition) {
       await db.entrees.update(Number(id), {
         grammes: quantite,
-        repas,
         portion: portionRetenue,
       })
     } else {
       await db.entrees.add({
         date: jour,
-        repas,
         nom: aliment.nom,
         grammes: quantite,
         portion: portionRetenue,
@@ -231,7 +225,7 @@ export default function Portion() {
     <div className="vue">
       <header className="vue-entete">
         <Link
-          to={modeEdition ? retour : `/ajouter/${repasUrl}?jour=${jour}`}
+          to={modeEdition ? retour : `/ajouter?jour=${jour}`}
           className="retour"
         >
           ← {modeEdition ? 'Retour' : 'Recherche'}
@@ -303,18 +297,6 @@ export default function Portion() {
           </p>
         )}
 
-        <div className="segments" role="group" aria-label="Repas">
-          {REPAS.map(({ cle, nom }) => (
-            <button
-              key={cle}
-              className="segment"
-              aria-pressed={repas === cle}
-              onClick={() => setRepas(cle)}
-            >
-              {nom}
-            </button>
-          ))}
-        </div>
       </section>
 
       <section className="carte">

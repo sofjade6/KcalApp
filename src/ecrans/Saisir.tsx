@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Link, useNavigate, useParams, useSearchParams } from 'react-router-dom'
+import { Link, useNavigate, useSearchParams } from 'react-router-dom'
 import { creerAlimentManuel } from '../db'
 
 const NUTRIMENTS = [
@@ -21,7 +21,6 @@ function energieDesMacros(prot: number, lip: number, gluc: number): number {
  * plat de traiteur, produit non référencé, recette maison.
  */
 export default function Saisir() {
-  const { repas } = useParams()
   const navigate = useNavigate()
   // Renseigné quand on arrive ici après un scan resté sans réponse : l'aliment
   // est alors mémorisé sous son vrai code-barres, et reconnu aux scans suivants.
@@ -80,7 +79,7 @@ export default function Saisir() {
         { nom: nom.trim(), ...chiffres },
         codeBarres,
       )
-      navigate(`/ajouter/${repas}/${code}${suffixe}`)
+      navigate(`/ajouter/${code}${suffixe}`)
     } catch {
       setEnregistrement(false)
     }
@@ -89,7 +88,7 @@ export default function Saisir() {
   return (
     <div className="vue">
       <header className="vue-entete">
-        <Link to={`/ajouter/${repas}${suffixe}`} className="retour">
+        <Link to={`/ajouter${suffixe}`} className="retour">
           ← Recherche
         </Link>
         <h1 className="vue-titre">Nouvel aliment</h1>

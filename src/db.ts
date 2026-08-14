@@ -1,14 +1,5 @@
 import Dexie, { type EntityTable } from 'dexie'
 
-export type Repas = 'petit-dejeuner' | 'dejeuner' | 'diner' | 'collation'
-
-export const REPAS: { cle: Repas; nom: string }[] = [
-  { cle: 'petit-dejeuner', nom: 'Petit-déjeuner' },
-  { cle: 'dejeuner', nom: 'Déjeuner' },
-  { cle: 'diner', nom: 'Dîner' },
-  { cle: 'collation', nom: 'Collation' },
-]
-
 /** Valeurs nutritionnelles, toujours ramenées à 100 g. */
 export interface Nutriments {
   kcal: number
@@ -42,7 +33,6 @@ export interface Entree extends Nutriments {
   id?: number
   /** Jour local au format AAAA-MM-JJ. */
   date: string
-  repas: Repas
   nom: string
   grammes: number
   /**
@@ -141,7 +131,6 @@ const db = new Dexie('kcalapp') as Dexie & {
 
 db.version(1).stores({
   profil: 'id',
-  // [date+repas] sert le regroupement par repas de l'écran du jour.
   entrees: '++id, date, [date+repas]',
   aliments: 'code, nom, vuLe',
   pesees: 'date',
@@ -159,6 +148,11 @@ db.version(2).stores({
 // ainsi de la recherche, de la résolution et des portions, sans seconde voie
 // à maintenir. La table dédiée est retirée.
 db.version(3).stores({ recettes: null })
+
+// Le découpage en repas est abandonné au profit d'une liste unique par jour :
+// l'index composé n'a plus d'objet. Les entrées existantes conservent leur
+// ancien champ `repas`, sans effet — rien ne le lit plus.
+db.version(4).stores({ entrees: '++id, date' })
 
 /**
  * Objectifs par défaut, volontairement génériques : le calcul personnalisé

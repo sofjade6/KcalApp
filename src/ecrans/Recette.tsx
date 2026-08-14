@@ -1,51 +1,70 @@
 import { useEffect, useState } from 'react'
-import { Link, useNavigate, useParams, useSearchParams } from 'react-router-dom'
-import db, { REPAS, creerRecette, type Entree, type Repas } from '../db'
+import { Link, useNavigate, useSearchParams } from 'react-router-dom'
+import db, { creerRecette, type Entree } from '../db'
 import { cleDuJour } from '../lib/dates'
-import { totalKcal } from '../lib/nutrition'
+import { kcalPortion, totalKcal } from '../lib/nutrition'
 
 /**
- * Transforme un repas déjà saisi en recette réutilisable.
+ * Transforme des aliments déjà notés en recette réutilisable.
  *
- * Partir d'un repas plutôt que d'un composeur vierge évite de ressaisir des
- * ingrédients déjà notés : le plat existe, il suffit de le nommer.
+ * Partir du journal plutôt que d'un composeur vierge évite de ressaisir des
+ * ingrédients déjà notés. Comme la journée n'est plus découpée en repas, les
+ * ingrédients du plat s'y choisissent un par un.
  */
 export default function Recette() {
-  const { repas } = useParams<{ repas: Repas }>()
   const navigate = useNavigate()
   const jour = useSearchParams()[0].get('jour') ?? cleDuJour()
   const retour = jour === cleDuJour() ? '/' : `/jour/${jour}`
 
   const [entrees, setEntrees] = useState<Entree[] | null>(null)
+  const [retenus, setRetenus] = useState<Set<number>>(new Set())
   const [nom, setNom] = useState('')
   const [poids, setPoids] = useState('')
   const [occupe, setOccupe] = useState(false)
+  // Tant que le poids n'a pas été touché, il suit la sélection.
+  const [poidsTouche, setPoidsTouche] = useState(false)
 
   useEffect(() => {
     let vivant = true
-    db.entrees.where({ date: jour, repas: repas! }).toArray().then((liste) => {
+    db.entrees.where('date').equals(jour).toArray().then((liste) => {
       if (!vivant) return
       setEntrees(liste)
-      // Poids cru par défaut : la somme des ingrédients. À corriger si la
-      // cuisson a fait perdre de l'eau, ce qui concentre les valeurs.
-      setPoids(String(liste.reduce((t, e) => t + e.grammes, 0)))
+      setRetenus(new Set(liste.map((e) => e.id!)))
     })
     return () => {
       vivant = false
     }
-  }, [jour, repas])
+  }, [jour])
+
+  const choisis = entrees?.filter((e) => retenus.has(e.id!)) ?? []
+
+  useEffect(() => {
+    if (poidsTouche) return
+    setPoids(String(choisis.reduce((t, e) => t + e.grammes, 0)))
+    // `choisis` est recalculé à chaque rendu : c'est bien la sélection qu'on suit.
+  }, [retenus, entrees, poidsTouche]) // eslint-disable-line react-hooks/exhaustive-deps
 
   if (!entrees) return <div className="vue" />
 
   const poidsTotal = Number(poids)
-  const valide = nom.trim() !== '' && Number.isFinite(poidsTotal) && poidsTotal > 0
-  const kcalTotal = totalKcal(entrees)
+  const valide =
+    nom.trim() !== '' && Number.isFinite(poidsTotal) && poidsTotal > 0 && choisis.length > 0
+  const kcalTotal = totalKcal(choisis)
   const pour100 = poidsTotal > 0 ? Math.round((kcalTotal / poidsTotal) * 100) : 0
 
+  function basculer(id: number) {
+    setRetenus((actuels) => {
+      const suivant = new Set(actuels)
+      if (suivant.has(id)) suivant.delete(id)
+      else suivant.add(id)
+      return suivant
+    })
+  }
+
   async function enregistrer() {
-    if (!valide || occupe || !entrees) return
+    if (!valide || occupe) return
     setOccupe(true)
-    await creerRecette(nom.trim(), poidsTotal, entrees)
+    await creerRecette(nom.trim(), poidsTotal, choisis)
     navigate(retour)
   }
 
@@ -60,10 +79,30 @@ export default function Recette() {
 
       {entrees.length === 0 ? (
         <p className="repas-vide">
-          Ce repas est vide. Note d’abord ses ingrédients, puis reviens ici.
+          Rien de noté ce jour-là. Note d’abord les ingrédients, puis reviens ici.
         </p>
       ) : (
         <>
+          <section className="carte">
+            <h2 className="carte-titre">Ingrédients à retenir</h2>
+            <div className="lignes">
+              {entrees.map((e) => (
+                <button
+                  className="ligne ligne-choix"
+                  key={e.id}
+                  aria-pressed={retenus.has(e.id!)}
+                  onClick={() => basculer(e.id!)}
+                >
+                  <span className="ligne-nom">
+                    {e.nom}
+                    <span className="ligne-detail">{e.grammes} g</span>
+                  </span>
+                  <span className="ligne-kcal">{kcalPortion(e)} kcal</span>
+                </button>
+              ))}
+            </div>
+          </section>
+
           <section className="carte">
             <label className="champ champ-large">
               <span className="champ-nom">Nom de la recette</span>
@@ -71,7 +110,7 @@ export default function Recette() {
                 type="text"
                 value={nom}
                 onChange={(e) => setNom(e.target.value)}
-                placeholder={`${REPAS.find((r) => r.cle === repas)?.nom} maison`}
+                placeholder="Bolognaise maison"
                 autoComplete="off"
               />
             </label>
@@ -86,29 +125,16 @@ export default function Recette() {
                 inputMode="numeric"
                 min={1}
                 value={poids}
-                onChange={(e) => setPoids(e.target.value)}
+                onChange={(e) => {
+                  setPoidsTouche(true)
+                  setPoids(e.target.value)
+                }}
               />
             </label>
 
-            <p className="note">
-              Par défaut, la somme des ingrédients. Corrige-la si la cuisson a
-              fait perdre de l’eau : à poids réduit, les valeurs se concentrent.
-            </p>
-          </section>
-
-          <section className="carte">
-            <h2 className="carte-titre">Composition</h2>
-            <div className="lignes">
-              {entrees.map((e) => (
-                <div className="ligne" key={e.id}>
-                  <span className="ligne-nom">{e.nom}</span>
-                  <span className="ligne-kcal">{e.grammes} g</span>
-                </div>
-              ))}
-            </div>
             <dl>
               <div className="etat">
-                <dt>Total du plat</dt>
+                <dt>Total retenu</dt>
                 <dd>{kcalTotal} kcal</dd>
               </div>
               <div className="etat">
@@ -116,6 +142,12 @@ export default function Recette() {
                 <dd>{pour100} kcal</dd>
               </div>
             </dl>
+
+            <p className="note">
+              Par défaut, la somme des ingrédients retenus. Corrige-la si la
+              cuisson a fait perdre de l’eau : à poids réduit, les valeurs se
+              concentrent.
+            </p>
           </section>
 
           <div className="actions">

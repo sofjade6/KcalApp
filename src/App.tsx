@@ -71,20 +71,19 @@ export default function App() {
           <Route path="/" element={<Jour />} />
           <Route path="/jour/:date" element={<Jour />} />
           <Route path="/copier" element={<Copier />} />
-          <Route path="/copier/:repas" element={<Copier />} />
-          <Route path="/recette/:repas" element={<Recette />} />
+          <Route path="/recette" element={<Recette />} />
           <Route path="/aliment/:code" element={<Aliment />} />
-          <Route path="/ajouter/:repas" element={<Ajouter />} />
-          <Route path="/saisir/:repas" element={<Saisir />} />
+          <Route path="/ajouter" element={<Ajouter />} />
+          <Route path="/saisir" element={<Saisir />} />
           <Route
-            path="/scanner/:repas"
+            path="/scanner"
             element={
               <Suspense fallback={<p className="vue note">Chargement du scanner…</p>}>
                 <Scanner />
               </Suspense>
             }
           />
-          <Route path="/ajouter/:repas/:code" element={<Portion />} />
+          <Route path="/ajouter/:code" element={<Portion />} />
           <Route path="/entree/:id" element={<Portion />} />
           <Route path="/bilan" element={<Bilan />} />
           <Route path="/profil" element={<Profil />} />

@@ -1,7 +1,6 @@
 import { Link, useParams } from 'react-router-dom'
 import { useLiveQuery } from 'dexie-react-hooks'
 import db, {
-  REPAS,
   SECONDAIRES,
   lireProfil,
   PROFIL_DEFAUT,
@@ -171,60 +170,48 @@ export default function Jour() {
         </section>
       )}
 
-      {REPAS.map(({ cle, nom }) => {
-        const duRepas = entrees.filter((e) => e.repas === cle)
-        const kcalRepas = totalKcal(duRepas)
+      <section className="repas">
+        <div className="repas-tete">
+          <h2 className="repas-nom">Aliments</h2>
+          <span className="repas-kcal">
+            {entrees.length} entrée{entrees.length > 1 ? 's' : ''}
+          </span>
+        </div>
 
-        return (
-          <section className="repas" key={cle}>
-            <div className="repas-tete">
-              <h2 className="repas-nom">{nom}</h2>
-              <span className="repas-kcal">{kcalRepas} kcal</span>
-            </div>
-
-            {duRepas.length === 0 ? (
-              <Link to={`/ajouter/${cle}?jour=${jour}`} className="repas-vide">
-                Rien de noté — ajouter un aliment
+        {entrees.length === 0 ? (
+          <Link to={`/ajouter?jour=${jour}`} className="repas-vide">
+            Rien de noté — ajouter un aliment
+          </Link>
+        ) : (
+          <div className="lignes">
+            {entrees.map((entree) => (
+              <Link className="ligne" key={entree.id} to={`/entree/${entree.id}?jour=${jour}`}>
+                <span className="ligne-nom">
+                  {entree.nom}
+                  <span className="ligne-detail">
+                    {entree.portion
+                      ? `${libellePortion(entree.portion, entree.portion.nombre)} · ${entree.grammes} g`
+                      : `${entree.grammes} g`}
+                  </span>
+                </span>
+                <span className="ligne-kcal">{kcalPortion(entree)} kcal</span>
               </Link>
-            ) : (
-              <div className="lignes">
-                {duRepas.map((entree) => (
-                  <Link className="ligne" key={entree.id} to={`/entree/${entree.id}?jour=${jour}`}>
-                    <span className="ligne-nom">
-                      {entree.nom}
-                      <span className="ligne-detail">
-                        {entree.portion
-                          ? `${libellePortion(entree.portion, entree.portion.nombre)} · ${entree.grammes} g`
-                          : `${entree.grammes} g`}
-                      </span>
-                    </span>
-                    <span className="ligne-kcal">{kcalPortion(entree)} kcal</span>
-                  </Link>
-                ))}
-              </div>
-            )}
+            ))}
+          </div>
+        )}
 
-            <div className="repas-actions">
-              {duRepas.length > 0 && (
-                <Link to={`/ajouter/${cle}?jour=${jour}`}>+ Ajouter</Link>
-              )}
-              <Link to={`/copier/${cle}?jour=${jour}`}>Copier depuis un autre jour</Link>
-              {duRepas.length >= 2 && (
-                <Link to={`/recette/${cle}?jour=${jour}`}>Enregistrer comme recette</Link>
-              )}
-            </div>
-          </section>
-        )
-      })}
+        <div className="repas-actions">
+          {entrees.length > 0 && <Link to={`/ajouter?jour=${jour}`}>+ Ajouter</Link>}
+          <Link to={`/copier?jour=${jour}`}>Copier un autre jour</Link>
+          {entrees.length >= 2 && (
+            <Link to={`/recette?jour=${jour}`}>Enregistrer comme recette</Link>
+          )}
+        </div>
+      </section>
 
       <Eau jour={jour} />
       <Activites jour={jour} activites={activites} />
 
-      <div className="actions">
-        <Link className="bouton discret" to={`/copier?jour=${jour}`}>
-          Copier une journée entière
-        </Link>
-      </div>
     </div>
   )
 }

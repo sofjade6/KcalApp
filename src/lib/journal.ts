@@ -1,11 +1,11 @@
-import db, { type Entree, type Repas } from '../db'
+import db, { type Entree } from '../db'
 import { cleDuJour } from './dates'
 
-/** Champs d'une entrée indépendants du jour et du repas où elle est posée. */
-type Modele = Omit<Entree, 'id' | 'date' | 'repas' | 'creeLe'>
+/** Champs d'une entrée indépendants du jour où elle est posée. */
+type Modele = Omit<Entree, 'id' | 'date' | 'creeLe'>
 
 const modele = (e: Entree): Modele => {
-  const { id: _id, date: _date, repas: _repas, creeLe: _creeLe, ...reste } = e
+  const { id: _id, date: _date, creeLe: _creeLe, ...reste } = e
   return reste
 }
 
@@ -57,37 +57,17 @@ export async function alimentsRecents(limite = 12): Promise<AlimentRecent[]> {
     .map(({ modele: m, fois, dernierJour }) => ({ ...m, fois, dernierJour }))
 }
 
-export async function ajouterAuJournal(
-  aliment: Modele,
-  date: string,
-  repas: Repas,
-): Promise<void> {
-  await db.entrees.add({ ...aliment, date, repas, creeLe: Date.now() })
+export async function ajouterAuJournal(aliment: Modele, date: string): Promise<void> {
+  await db.entrees.add({ ...aliment, date, creeLe: Date.now() })
 }
 
-/** Recopie un repas d'un jour vers un autre. */
-export async function copierRepas(
-  source: string,
-  repasSource: Repas,
-  cible: string,
-  repasCible: Repas,
-): Promise<number> {
-  const entrees = await db.entrees.where({ date: source, repas: repasSource }).toArray()
-  if (entrees.length === 0) return 0
-
-  await db.entrees.bulkAdd(
-    entrees.map((e) => ({ ...modele(e), date: cible, repas: repasCible, creeLe: Date.now() })),
-  )
-  return entrees.length
-}
-
-/** Recopie une journée entière, tous repas confondus. */
+/** Recopie une journée entière vers une autre. */
 export async function dupliquerJour(source: string, cible: string): Promise<number> {
   const entrees = await db.entrees.where('date').equals(source).toArray()
   if (entrees.length === 0) return 0
 
   await db.entrees.bulkAdd(
-    entrees.map((e) => ({ ...modele(e), date: cible, repas: e.repas, creeLe: Date.now() })),
+    entrees.map((e) => ({ ...modele(e), date: cible, creeLe: Date.now() })),
   )
   return entrees.length
 }

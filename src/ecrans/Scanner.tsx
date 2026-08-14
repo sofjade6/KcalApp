@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import { Link, useNavigate, useParams, useSearchParams } from 'react-router-dom'
+import { Link, useNavigate, useSearchParams } from 'react-router-dom'
 import { BrowserMultiFormatReader } from '@zxing/browser'
 import { BarcodeFormat, DecodeHintType } from '@zxing/library'
 import db from '../db'
@@ -20,7 +20,6 @@ type Etat =
   | { phase: 'echec'; titre: string; detail: string; code?: string }
 
 export default function Scanner() {
-  const { repas } = useParams()
   const navigate = useNavigate()
   const jour = useSearchParams()[0].get('jour')
   const suffixe = jour ? `?jour=${jour}` : ''
@@ -47,14 +46,14 @@ export default function Scanner() {
       // Un produit déjà scanné est resservi depuis l'appareil : instantané,
       // et disponible hors ligne.
       const connu = await db.aliments.get(code)
-      if (connu) return navigate(`/ajouter/${repas}/${code}${suffixe}`)
+      if (connu) return navigate(`/ajouter/${code}${suffixe}`)
 
       const resultat = await chercherProduit(code)
       if (!vivant) return
 
       if (resultat.etat === 'trouve') {
         await db.aliments.put({ ...resultat.produit, source: 'openfoodfacts', vuLe: Date.now() })
-        return navigate(`/ajouter/${repas}/${code}${suffixe}`)
+        return navigate(`/ajouter/${code}${suffixe}`)
       }
       if (resultat.etat === 'inconnu') {
         return setEtat({
@@ -111,12 +110,12 @@ export default function Scanner() {
       vivant = false
       arreter?.()
     }
-  }, [repas, navigate, suffixe])
+  }, [navigate, suffixe])
 
   return (
     <div className="vue">
       <header className="vue-entete">
-        <Link to={`/ajouter/${repas}${suffixe}`} className="retour">
+        <Link to={`/ajouter${suffixe}`} className="retour">
           ← Recherche
         </Link>
         <h1 className="vue-titre">Scanner un produit</h1>
@@ -149,12 +148,12 @@ export default function Scanner() {
             {etat.code && (
               <Link
                 className="bouton"
-                to={`/saisir/${repas}?code=${encodeURIComponent(etat.code)}${jour ? `&jour=${jour}` : ''}`}
+                to={`/saisir?code=${encodeURIComponent(etat.code)}${jour ? `&jour=${jour}` : ''}`}
               >
                 Saisir ce produit
               </Link>
             )}
-            <Link className="bouton discret" to={`/ajouter/${repas}${suffixe}`}>
+            <Link className="bouton discret" to={`/ajouter${suffixe}`}>
               Chercher par nom
             </Link>
           </div>

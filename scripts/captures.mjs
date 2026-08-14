@@ -18,25 +18,25 @@ import { mkdir } from 'node:fs/promises'
 const BASE = process.argv[2] ?? 'http://localhost:4173'
 const SORTIE = process.argv[3] ?? 'captures'
 
-/** Repas de démonstration, en valeurs CIQUAL pour 100 g. */
+/** Aliments de démonstration, en valeurs CIQUAL pour 100 g. */
 const DEMO = [
-  ['petit-dejeuner', 'Pain complet, grillé', 80, 271, 10.4, 3.4, 44.4],
-  ['petit-dejeuner', 'Yaourt nature au lait entier', 125, 71, 3.7, 3.5, 5.1],
-  ['dejeuner', 'Poulet, blanc, rôti', 150, 148, 30.2, 2.8, 0],
-  ['dejeuner', 'Pâtes sèches, au blé complet, cuites', 220, 128, 4.55, 0.9, 23.4],
-  ['collation', 'Amandes, grillées', 30, 634, 22.5, 55.2, 5.2],
+  ['Pain complet, grillé', 80, 271, 10.4, 3.4, 44.4],
+  ['Yaourt nature au lait entier', 125, 71, 3.7, 3.5, 5.1],
+  ['Poulet, blanc, rôti', 150, 148, 30.2, 2.8, 0],
+  ['Pâtes sèches, au blé complet, cuites', 220, 128, 4.55, 0.9, 23.4],
+  ['Amandes, grillées', 30, 634, 22.5, 55.2, 5.2],
 ]
 
 const ECRANS = [
   { nom: 'aujourdhui', chemin: '/', attendre: '.jauge-remplissage' },
   { nom: 'profil', chemin: '/profil', attendre: '.pesee input' },
-  { nom: 'recherche', chemin: '/ajouter/dejeuner', attendre: '.recherche input' },
-  { nom: 'saisir', chemin: '/saisir/dejeuner', attendre: '.champ-large input' },
+  { nom: 'recherche', chemin: '/ajouter', attendre: '.recherche input' },
+  { nom: 'saisir', chemin: '/saisir', attendre: '.champ-large input' },
   { nom: 'reglages', chemin: '/reglages', attendre: '.champ input' },
 ]
 
 async function semer(page) {
-  await page.evaluate(async (repas) => {
+  await page.evaluate(async (aliments) => {
     const d = new Date()
     const jour = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
     const db = await new Promise((res, rej) => {
@@ -45,9 +45,9 @@ async function semer(page) {
       r.onerror = () => rej(r.error)
     })
     const tx = db.transaction('entrees', 'readwrite')
-    for (const [r, nom, grammes, kcal, prot, lip, gluc] of repas) {
+    for (const [nom, grammes, kcal, prot, lip, gluc] of aliments) {
       tx.objectStore('entrees').add({
-        date: jour, repas: r, nom, grammes, kcal, prot, lip, gluc,
+        date: jour, nom, grammes, kcal, prot, lip, gluc,
         source: 'ciqual', creeLe: Date.now(),
       })
     }

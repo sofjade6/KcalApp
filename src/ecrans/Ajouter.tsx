@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
-import { Link, useNavigate, useParams, useSearchParams } from 'react-router-dom'
+import { Link, useNavigate, useSearchParams } from 'react-router-dom'
 import { useLiveQuery } from 'dexie-react-hooks'
-import db, { REPAS, type Repas } from '../db'
+import db from '../db'
 import { chargerCiqual, type AlimentIndexe } from '../lib/ciqual'
 import { chercher, normaliser, LIMITE_RESULTATS } from '../lib/recherche'
 import { alimentsRecents, ajouterAuJournal, type AlimentRecent } from '../lib/journal'
@@ -9,11 +9,9 @@ import { cleDuJour, libelleJour } from '../lib/dates'
 import { libellePortion } from '../lib/portions'
 
 export default function Ajouter() {
-  const { repas } = useParams<{ repas: Repas }>()
   const navigate = useNavigate()
   const jour = useSearchParams()[0].get('jour') ?? cleDuJour()
   const retour = jour === cleDuJour() ? '/' : `/jour/${jour}`
-  const nomRepas = REPAS.find((r) => r.cle === repas)?.nom ?? 'Repas'
 
   const [ciqual, setCiqual] = useState<AlimentIndexe[] | null>(null)
   const [erreur, setErreur] = useState<string | null>(null)
@@ -67,10 +65,10 @@ export default function Ajouter() {
 
   /** Un récent se réajoute d'un seul geste, avec la quantité de la dernière fois. */
   async function reprendre(aliment: AlimentRecent) {
-    if (occupe || !repas) return
+    if (occupe) return
     setOccupe(true)
     const { fois: _fois, dernierJour: _dernierJour, ...modele } = aliment
-    await ajouterAuJournal(modele, jour, repas)
+    await ajouterAuJournal(modele, jour)
     navigate(retour)
   }
 
@@ -80,13 +78,13 @@ export default function Ajouter() {
         <Link to={retour} className="retour">
           ← Retour
         </Link>
-        <h1 className="vue-titre">Ajouter à {nomRepas.toLowerCase()}</h1>
+        <h1 className="vue-titre">Ajouter un aliment</h1>
         {jour !== cleDuJour() && (
           <span className="vue-date">{libelleJour(jour)}</span>
         )}
       </header>
 
-      <Link to={`/scanner/${repas}?jour=${jour}`} className="bouton scanner-entree">
+      <Link to={`/scanner?jour=${jour}`} className="bouton scanner-entree">
         <svg viewBox="0 0 24 24" aria-hidden="true">
           <path d="M3 8V5.5A1.5 1.5 0 0 1 4.5 4H7M17 4h2.5A1.5 1.5 0 0 1 21 5.5V8M21 16v2.5a1.5 1.5 0 0 1-1.5 1.5H17M7 20H4.5A1.5 1.5 0 0 1 3 18.5V16" />
           <path d="M7 8.5v7M10.5 8.5v7M14 8.5v7M17 8.5v7" />
@@ -161,7 +159,7 @@ export default function Ajouter() {
               <button
                 key={aliment.c}
                 className="resultat"
-                onClick={() => navigate(`/ajouter/${repas}/${aliment.c}?jour=${jour}`)}
+                onClick={() => navigate(`/ajouter/${aliment.c}?jour=${jour}`)}
               >
                 <span className="resultat-nom">
                   {aliment.n}
@@ -204,7 +202,7 @@ export default function Ajouter() {
             <button
               key={aliment.c}
               className="resultat"
-              onClick={() => navigate(`/ajouter/${repas}/${aliment.c}?jour=${jour}`)}
+              onClick={() => navigate(`/ajouter/${aliment.c}?jour=${jour}`)}
             >
               <span className="resultat-nom">
                 {aliment.n}
@@ -227,7 +225,7 @@ export default function Ajouter() {
         </div>
       )}
 
-      <Link to={`/saisir/${repas}?jour=${jour}`} className="bouton discret saisie-manuelle">
+      <Link to={`/saisir?jour=${jour}`} className="bouton discret saisie-manuelle">
         Saisir un aliment absent de la table
       </Link>
     </div>
