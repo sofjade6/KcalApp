@@ -2,6 +2,9 @@ import { Suspense, lazy } from 'react'
 import { BrowserRouter, NavLink, Navigate, Route, Routes } from 'react-router-dom'
 import Jour from './ecrans/Jour'
 import Copier from './ecrans/Copier'
+import Recette from './ecrans/Recette'
+import Bilan from './ecrans/Bilan'
+import Aliment from './ecrans/Aliment'
 import Ajouter from './ecrans/Ajouter'
 import Portion from './ecrans/Portion'
 import Profil from './ecrans/Profil'
@@ -23,6 +26,15 @@ const ONGLETS = [
         <path d="M4 6.5h16" />
         <path d="M4 12h16" />
         <path d="M4 17.5h10" />
+      </>
+    ),
+  },
+  {
+    chemin: '/bilan',
+    nom: 'Bilan',
+    icone: (
+      <>
+        <path d="M4 20V13M9.3 20V8M14.7 20v-5M20 20V5" />
       </>
     ),
   },
@@ -60,6 +72,8 @@ export default function App() {
           <Route path="/jour/:date" element={<Jour />} />
           <Route path="/copier" element={<Copier />} />
           <Route path="/copier/:repas" element={<Copier />} />
+          <Route path="/recette/:repas" element={<Recette />} />
+          <Route path="/aliment/:code" element={<Aliment />} />
           <Route path="/ajouter/:repas" element={<Ajouter />} />
           <Route path="/saisir/:repas" element={<Saisir />} />
           <Route
@@ -72,6 +86,7 @@ export default function App() {
           />
           <Route path="/ajouter/:repas/:code" element={<Portion />} />
           <Route path="/entree/:id" element={<Portion />} />
+          <Route path="/bilan" element={<Bilan />} />
           <Route path="/profil" element={<Profil />} />
           <Route path="/reglages" element={<Reglages />} />
           {/* Une URL inconnue ramène à l'accueil plutôt qu'à un écran blanc. */}

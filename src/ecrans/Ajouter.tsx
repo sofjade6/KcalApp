@@ -49,7 +49,7 @@ export default function Ajouter() {
         lip: a.lip,
         gluc: a.gluc,
         cherchable: normaliser(a.nom),
-        groupe: a.marque ?? 'Mes aliments',
+        groupe: a.marque ?? (a.source === 'recette' ? 'Recette' : 'Mes aliments'),
         perso: true,
       })),
     [mesAliments],

@@ -56,6 +56,45 @@ La recherche compense sur trois plans, sans dictionnaire de synonymes :
   cas de `crème fraîche`, absente de la table, qui s'y nomme
   `Crème de lait, 30% MG, épaisse`.
 
+## Journal et historique
+
+L'écran du jour est navigable : une journée passée se complète et se corrige
+comme celle du jour. Le jour visé circule par l'URL (`?jour=`) à travers la
+recherche, le scan, la saisie et l'écran de quantité.
+
+Trois raccourcis réduisent la saisie quotidienne : les **aliments récents**,
+reproposés en tête de recherche et réajoutables d'un geste avec la quantité de
+la dernière fois ; la **copie d'un repas ou d'une journée** depuis un jour
+précédent ; et les **recettes**, un repas déjà noté transformé en aliment
+réutilisable dont on pèse ensuite sa part.
+
+Une recette est stockée comme un aliment mémorisé ordinaire — elle hérite ainsi
+de la recherche, de la résolution et des portions, sans seconde voie à
+maintenir. Sa composition est conservée à titre de mémoire.
+
+## Bilan
+
+L'onglet Bilan compare la semaine à l'objectif, liste les jours de dépassement
+et projette la date d'atteinte de la cible à partir de la pente réelle du poids
+(moindres carrés sur quatre semaines).
+
+Sa carte la plus utile confronte les calories notées à l'évolution réelle du
+poids : c'est le seul contrôle qui dise si la dépense estimée par l'équation
+correspond à ce corps-là. Les formules donnent une moyenne de population et
+l'écart individuel atteint couramment 200 à 300 kcal par jour.
+
+Deux précautions de calcul : un jour sans aucune saisie est exclu de la moyenne
+plutôt que compté à zéro, et aucune projection n'est affichée si la pente est
+trop faible pour se distinguer du bruit ou s'éloigne de la cible.
+
+## Rappels
+
+L'app **n'envoie pas de notifications**. Une PWA ne peut pas se réveiller seule
+pour en émettre : il faudrait un serveur d'envoi, donc un backend, un compte, et
+la fin de la promesse « tout reste sur le téléphone ». Les rappels s'affichent
+à l'ouverture, sur l'écran du jour — pesée trop ancienne, sauvegarde trop
+ancienne.
+
 ## Portions usuelles
 
 La quantité se saisit en grammes ou en unités courantes — « 2 œufs » plutôt

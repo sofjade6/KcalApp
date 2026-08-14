@@ -53,35 +53,32 @@ export interface Entree extends Nutriments {
   portion?: { nom: string; grammes: number; nombre: number }
   /** Code-barres, quand l'entrée vient d'un scan. */
   code?: string
-  source: 'ciqual' | 'openfoodfacts' | 'manuel'
+  source: 'ciqual' | 'openfoodfacts' | 'manuel' | 'recette'
   creeLe: number
 }
 
-/** Aliment mémorisé localement : produit scanné ou favori. */
+/** Aliment mémorisé localement : produit scanné, saisi à la main, ou recette. */
 export interface AlimentEnCache extends Nutriments {
   code: string
   nom: string
   marque?: string
+  /**
+   * Composition, pour une recette. Les valeurs nutritionnelles sont déjà
+   * ramenées à 100 g de préparation ; la liste sert à la relire et à la
+   * recalculer, pas au calcul quotidien.
+   */
+  ingredients?: { nom: string; grammes: number }[]
+  poidsTotal?: number
   /** Portion indiquée sur l'emballage, telle que rapportée par OpenFoodFacts. */
   portionG?: number
   portionNom?: string
-  source: 'ciqual' | 'openfoodfacts' | 'manuel'
+  source: 'ciqual' | 'openfoodfacts' | 'manuel' | 'recette'
   vuLe: number
 }
 
 export interface Pesee {
   date: string
   kg: number
-}
-
-/** Plat composé, mémorisé pour être réutilisé en une fois. */
-export interface Recette extends Nutriments {
-  id?: number
-  nom: string
-  /** Poids total de la préparation, servant de base au calcul pour 100 g. */
-  poidsTotal: number
-  ingredients: { nom: string; grammes: number }[]
-  majLe: number
 }
 
 /** Verres d'eau bus dans la journée. */
@@ -138,7 +135,6 @@ const db = new Dexie('kcalapp') as Dexie & {
   entrees: EntityTable<Entree, 'id'>
   aliments: EntityTable<AlimentEnCache, 'code'>
   pesees: EntityTable<Pesee, 'date'>
-  recettes: EntityTable<Recette, 'id'>
   hydratation: EntityTable<Hydratation, 'date'>
   activites: EntityTable<Activite, 'id'>
 }
@@ -158,6 +154,11 @@ db.version(2).stores({
   hydratation: 'date',
   activites: '++id, date',
 })
+
+// Une recette est finalement un aliment mémorisé comme un autre : elle hérite
+// ainsi de la recherche, de la résolution et des portions, sans seconde voie
+// à maintenir. La table dédiée est retirée.
+db.version(3).stores({ recettes: null })
 
 /**
  * Objectifs par défaut, volontairement génériques : le calcul personnalisé
@@ -239,6 +240,49 @@ export async function supprimerPesee(date: string) {
 export async function majHydratation(date: string, verres: number) {
   if (verres <= 0) await db.hydratation.delete(date)
   else await db.hydratation.put({ date, verres })
+}
+
+/**
+ * Enregistre un repas comme recette réutilisable.
+ *
+ * Les valeurs sont ramenées à 100 g de préparation : c'est ce qui permet
+ * ensuite de la consommer comme n'importe quel aliment, en pesant sa part.
+ */
+export async function creerRecette(
+  nom: string,
+  poidsTotal: number,
+  entrees: Entree[],
+): Promise<string> {
+  const code = `recette-${crypto.randomUUID()}`
+  const pour100 = (extraire: (e: Entree) => number | undefined) => {
+    let total = 0
+    let renseigne = false
+    for (const e of entrees) {
+      const valeur = extraire(e)
+      if (valeur === undefined) continue
+      renseigne = true
+      total += (valeur * e.grammes) / 100
+    }
+    return renseigne ? Math.round((total / poidsTotal) * 100 * 100) / 100 : undefined
+  }
+
+  await db.aliments.put({
+    code,
+    nom,
+    source: 'recette',
+    poidsTotal,
+    ingredients: entrees.map((e) => ({ nom: e.nom, grammes: e.grammes })),
+    kcal: pour100((e) => e.kcal) ?? 0,
+    prot: pour100((e) => e.prot) ?? 0,
+    lip: pour100((e) => e.lip) ?? 0,
+    gluc: pour100((e) => e.gluc) ?? 0,
+    fib: pour100((e) => e.fib),
+    sel: pour100((e) => e.sel),
+    suc: pour100((e) => e.suc),
+    ags: pour100((e) => e.ags),
+    vuLe: Date.now(),
+  })
+  return code
 }
 
 export async function ajouterActivite(date: string, nom: string, kcal: number) {

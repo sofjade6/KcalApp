@@ -14,6 +14,7 @@ import { libellePortion } from '../lib/portions'
 import Jauge from '../composants/Jauge'
 import Eau from '../composants/Eau'
 import Activites from '../composants/Activites'
+import Rappels from '../composants/Rappels'
 
 export default function Jour() {
   const { date } = useParams()
@@ -87,6 +88,8 @@ export default function Jour() {
           )}
         </h1>
       </header>
+
+      <Rappels jour={jour} />
 
       <section className="carte">
         <div className="vedette">
@@ -206,6 +209,9 @@ export default function Jour() {
                 <Link to={`/ajouter/${cle}?jour=${jour}`}>+ Ajouter</Link>
               )}
               <Link to={`/copier/${cle}?jour=${jour}`}>Copier depuis un autre jour</Link>
+              {duRepas.length >= 2 && (
+                <Link to={`/recette/${cle}?jour=${jour}`}>Enregistrer comme recette</Link>
+              )}
             </div>
           </section>
         )

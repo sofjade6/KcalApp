@@ -123,7 +123,11 @@ export default function Reglages() {
           </button>
         )}
         <p className="note">
-          Tout reste sur ce téléphone : aucun compte, aucun serveur.
+          Tout reste sur ce téléphone : aucun compte, aucun serveur. C’est aussi
+          pourquoi l’app <b>n’envoie pas de notifications</b> : une page web ne
+          peut pas se réveiller seule pour en émettre, il faudrait un serveur
+          d’envoi. Les rappels s’affichent donc à l’ouverture, sur l’écran du
+          jour.
         </p>
       </section>
 

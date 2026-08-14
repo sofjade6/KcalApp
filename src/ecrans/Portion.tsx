@@ -331,6 +331,12 @@ export default function Portion() {
         </dl>
       </section>
 
+      {!modeEdition && aliment.source !== 'ciqual' && aliment.code && (
+        <Link className="modifier-aliment" to={`/aliment/${aliment.code}`}>
+          Corriger les valeurs de cet aliment
+        </Link>
+      )}
+
       <div className="actions">
         <button
           className="bouton"

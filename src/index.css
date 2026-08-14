@@ -1081,3 +1081,105 @@ a.repas-vide {
   font-size: 1rem;
   font-weight: 600;
 }
+
+.modifier-aliment {
+  align-self: flex-start;
+  font-size: 0.85rem;
+  color: var(--encre-douce);
+}
+
+button.retour {
+  text-align: left;
+}
+
+/* ---------- bilan ---------- */
+
+.barres {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 0.4rem;
+  align-items: end;
+}
+
+.barre {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.barre-piste {
+  position: relative;
+  width: 100%;
+  height: 5.5rem;
+  background: var(--carte-creuse);
+  border-radius: 5px;
+  display: flex;
+  align-items: flex-end;
+  overflow: hidden;
+}
+
+.barre-valeur {
+  width: 100%;
+  background: var(--jauge-total);
+  border-radius: 4px 4px 0 0;
+}
+
+/* Le dépassement est un état, pas une série : il porte sa propre teinte,
+   doublée du chiffre affiché dans la liste en dessous. */
+.barre-valeur.depasse {
+  background: var(--alerte);
+}
+
+.barre-seuil {
+  position: absolute;
+  left: 0;
+  right: 0;
+  border-top: 1.5px dashed var(--trait-fort);
+}
+
+.barre-jour {
+  font-family: var(--mono);
+  font-size: 0.68rem;
+  color: var(--encre-muette);
+}
+
+/* ---------- rappels ---------- */
+
+.rappels {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.rappel {
+  display: block;
+  font-size: 0.87rem;
+  line-height: 1.45;
+  color: var(--encre-douce);
+  text-decoration: none;
+  background: var(--carte);
+  border: 1px solid var(--trait);
+  border-left: 3px solid var(--encre-muette);
+  border-radius: 10px;
+  padding: 0.75rem 0.9rem;
+}
+
+.rappel b {
+  color: var(--encre);
+}
+
+.vedette-texte {
+  font-size: 1.7rem;
+  font-weight: 650;
+  letter-spacing: -0.02em;
+  line-height: 1.1;
+}
+
+/* Les jours cliquables du bilan restent du texte : le style de lien par
+   défaut jurerait avec le reste des listes. */
+.ligne a,
+a.ligne-nom {
+  color: inherit;
+  text-decoration: none;
+}
