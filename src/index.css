@@ -271,12 +271,14 @@ input {
 
 .jauge-nom {
   display: flex;
-  align-items: center;
-  gap: 0.45rem;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 0.2rem 0.45rem;
   color: var(--encre-douce);
 }
 
 .jauge-pastille {
+  align-self: center;
   width: 9px;
   height: 9px;
   border-radius: 2px;
@@ -702,9 +704,13 @@ a.repas-vide {
   color: var(--encre-muette);
 }
 
+/* Part d'énergie : côté nom, en petit, hors de la police à chiffres —
+   rien ne doit pouvoir se confondre avec la valeur en grammes. */
 .jauge-part {
+  font-family: var(--sans);
+  font-size: 0.74rem;
   color: var(--encre-muette);
-  margin-right: 0.5rem;
+  white-space: nowrap;
 }
 
 .repas-actions {

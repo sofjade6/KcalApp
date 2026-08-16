@@ -24,11 +24,14 @@ export default function Jauge({ nom, valeur, objectif, unite, teinte, pourcentag
         <span className="jauge-nom">
           <span className="jauge-pastille" aria-hidden="true" />
           {nom}
+          {/* La part d'énergie se place du côté du nom, pas de la valeur :
+              accolée aux grammes, elle se lisait comme eux — « 6 % 4 / 65 g »
+              donne deux nombres dans la même police, à un espace d'écart. */}
+          {pourcentage !== undefined && (
+            <span className="jauge-part">{pourcentage} % de l’énergie</span>
+          )}
         </span>
         <span className="jauge-valeur">
-          {pourcentage !== undefined && (
-            <span className="jauge-part">{pourcentage} %</span>
-          )}
           <b>{arrondie}</b> / {objectif} {unite}
         </span>
       </div>
