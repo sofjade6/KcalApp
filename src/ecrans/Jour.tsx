@@ -34,7 +34,9 @@ export default function Jour() {
 
   const macros = cumuler(entrees)
   const kcalJour = totalKcal(entrees)
-  const parts = repartition(macros)
+  // Une part d'énergie calculée sur presque rien n'apprend rien : un seul
+  // concombre noté donne « 57 % de glucides », vrai et inutilisable.
+  const parts = kcalJour >= 300 ? repartition(macros) : null
 
   // L'activité physique agrandit le budget du jour plutôt que de retrancher
   // des calories consommées : ce qui a été mangé reste ce qui a été mangé.

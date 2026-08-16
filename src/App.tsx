@@ -10,6 +10,7 @@ import Aliment from './ecrans/Aliment'
 import Ajouter from './ecrans/Ajouter'
 import Portion from './ecrans/Portion'
 import Profil from './ecrans/Profil'
+import SyncObjectifs from './composants/SyncObjectifs'
 import Saisir from './ecrans/Saisir'
 
 // ZXing pèse près de 500 Ko à lui seul. Le charger à la demande évite de
@@ -79,6 +80,7 @@ export default function App() {
   return (
     <BrowserRouter>
       <div className="app">
+        <SyncObjectifs />
         <Routes>
           <Route path="/" element={<Jour />} />
           <Route path="/jour/:date" element={<Jour />} />

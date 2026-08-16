@@ -134,6 +134,7 @@ export function coherence(
     profil.sexe!,
     profil.activite!,
     profil.but!,
+    profil.poidsCible,
   )
 
   const attendue = ((moyenneKcal - depense) * 7) / KCAL_PAR_KG

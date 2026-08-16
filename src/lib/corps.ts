@@ -92,6 +92,8 @@ export function besoins(
   sexe: Sexe,
   activite: NiveauActivite,
   but: But,
+  /** Poids visé : sert de base aux protéines quand il est renseigné. */
+  poidsCible?: number,
 ): Besoins {
   const base = metabolismeBase(kg, tailleCm, ans, sexe)
   const facteur = ACTIVITES.find((a) => a.cle === activite)!.facteur
@@ -102,10 +104,21 @@ export function besoins(
   const planche = vise < base
   const kcal = Math.round(Math.max(vise, base) / 10) * 10
 
-  // Protéines et lipides d'abord, en proportion du poids ; les glucides
-  // occupent ce qui reste.
-  const prot = Math.round(kg * (but === 'perte' ? 1.8 : 1.6))
-  const lip = Math.round(kg * 0.9)
+  // Protéines et lipides sont bornés en part d'énergie, pas seulement en
+  // grammes par kilo. Les fixer au seul poids corporel écrasait les glucides
+  // dès que l'apport était réduit : un profil lourd en déficit se retrouvait
+  // avec 30 g de glucides par jour, soit une répartition cétogène que
+  // personne n'a demandée.
+  const reference = poidsCible ?? kg
+  const prot = Math.round(
+    Math.min(
+      Math.max((0.25 * kcal) / 4, 1.6 * reference),
+      Math.min(2.2 * reference, (0.3 * kcal) / 4),
+    ),
+  )
+  const lip = Math.round(
+    Math.min(Math.max((0.3 * kcal) / 9, 0.6 * kg), (0.35 * kcal) / 9),
+  )
   const gluc = Math.max(0, Math.round((kcal - prot * 4 - lip * 9) / 4))
 
   return { base: Math.round(base), depense: Math.round(depense), kcal, prot, lip, gluc, planche }

@@ -38,25 +38,11 @@ export default function Profil() {
           profil.sexe!,
           profil.activite!,
           profil.but!,
+          profil.poidsCible,
         )
       : null
 
-  // Les objectifs suivent le profil tant qu'ils n'ont pas été forcés à la main.
-  useEffect(() => {
-    if (!calcul || !profil.objectifsAuto) return
-    const identiques =
-      profil.objectifKcal === calcul.kcal &&
-      profil.objectifProt === calcul.prot &&
-      profil.objectifLip === calcul.lip &&
-      profil.objectifGluc === calcul.gluc
-    if (identiques) return
-    majProfil({
-      objectifKcal: calcul.kcal,
-      objectifProt: calcul.prot,
-      objectifLip: calcul.lip,
-      objectifGluc: calcul.gluc,
-    })
-  }, [calcul, profil])
+  // Le recalcul des objectifs est monté au niveau de l'app : voir SyncObjectifs.
 
   const valeurImc = dernier && profil.tailleCm ? imc(dernier.kg, profil.tailleCm) : null
   const message = encouragement(pesees, profil.but, profil.poidsCible)
