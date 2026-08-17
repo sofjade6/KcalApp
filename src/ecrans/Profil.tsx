@@ -245,12 +245,12 @@ export default function Profil() {
               <dd>{calcul.kcal} kcal</dd>
             </div>
           </dl>
-          {calcul.planche && (
+          {calcul.sousLeBase && (
             <p className="avertissement">
-              Le déficit visé passerait sous ton métabolisme de base. L’objectif
-              a été relevé à {calcul.kcal} kcal : en dessous, le corps ne couvre
-              plus ses fonctions vitales au repos et puise autant dans le muscle
-              que dans la graisse.
+              Cet objectif est <b>sous ton métabolisme de base</b> ({calcul.base}{' '}
+              kcal), ce que ton corps consomme au repos sans rien faire. À ce
+              niveau, le déficit puise autant dans le muscle que dans la
+              graisse. L’app applique quand même ce que tu as demandé.
             </p>
           )}
           <p className="note">

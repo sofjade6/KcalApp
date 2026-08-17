@@ -74,16 +74,16 @@ export interface Besoins {
   prot: number
   lip: number
   gluc: number
-  /** Vrai si l'objectif a dû être relevé jusqu'au métabolisme de base. */
-  planche: boolean
+  /** Vrai si l'objectif tombe sous le métabolisme de base. Informatif. */
+  sousLeBase: boolean
 }
 
 /**
  * Objectifs quotidiens déduits du profil.
  *
- * L'apport n'est jamais placé sous le métabolisme de base : en dessous, le
- * corps ne couvre plus ses fonctions vitales au repos, et le déficit se paie
- * en masse musculaire autant qu'en masse grasse.
+ * L'apport visé n'est plus relevé jusqu'au métabolisme de base : le déficit
+ * demandé est appliqué tel quel. Descendre sous le métabolisme de base reste
+ * signalé à l'écran, mais c'est une information, pas une borne.
  */
 export function besoins(
   kg: number,
@@ -101,8 +101,8 @@ export function besoins(
   const ecart = BUTS.find((b) => b.cle === but)!.ecart
 
   const vise = depense + ecart
-  const planche = vise < base
-  const kcal = Math.round(Math.max(vise, base) / 10) * 10
+  const kcal = Math.round(vise / 10) * 10
+  const sousLeBase = kcal < base
 
   // Protéines et lipides sont bornés en part d'énergie, pas seulement en
   // grammes par kilo. Les fixer au seul poids corporel écrasait les glucides
@@ -121,7 +121,7 @@ export function besoins(
   )
   const gluc = Math.max(0, Math.round((kcal - prot * 4 - lip * 9) / 4))
 
-  return { base: Math.round(base), depense: Math.round(depense), kcal, prot, lip, gluc, planche }
+  return { base: Math.round(base), depense: Math.round(depense), kcal, prot, lip, gluc, sousLeBase }
 }
 
 /** Profil suffisamment renseigné pour que le calcul ait un sens. */

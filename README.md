@@ -155,17 +155,24 @@ L'onglet Profil réunit les pesées, la courbe d'évolution, l'IMC et les donné
 corporelles. Les objectifs caloriques en découlent (Mifflin-St Jeor × facteur
 d'activité, ajusté selon le but) et alimentent l'écran du jour.
 
-Deux garde-fous :
+Les protéines et lipides sont bornés en **part d'énergie** autant qu'en grammes
+par kilo — protéines entre 25 et 30 %, lipides autour de 30 %. Les fixer au seul
+poids corporel écrasait les glucides dès que l'apport était réduit : un profil
+lourd en déficit se retrouvait à 30 g de glucides par jour, soit une répartition
+cétogène involontaire.
 
-- **L'apport visé n'est jamais placé sous le métabolisme de base.** En dessous,
-  le corps ne couvre plus ses fonctions vitales au repos et puise autant dans
-  le muscle que dans la graisse. L'écran le signale quand la borne s'applique.
-- **Un poids visé correspondant à un IMC inférieur à 18,5** est suivi malgré
-  tout, mais signalé.
+Deux situations sont **signalées sans être bloquées** : un objectif sous le
+métabolisme de base, et un poids visé correspondant à un IMC inférieur à 18,5.
+L'app applique ce qui est demandé et affiche l'information ; aucun plafonnement
+n'est appliqué.
 
-Modifier un objectif à la main dans Réglages coupe le calcul automatique, pour
-que le profil ne vienne pas écraser une valeur choisie. Un bouton permet d'y
-revenir.
+Modifier un objectif à la main dans Réglages coupe le calcul automatique — mais
+seulement si la valeur **change réellement** : retaper la même figeait
+auparavant les objectifs pour de bon, et le profil semblait ensuite sans effet.
+Le passage en manuel est signalé et un bouton rétablit le calcul.
+
+Le recalcul est monté au niveau de l'application et non de l'écran Profil : une
+correction de la formule doit prendre effet sans avoir à visiter cet écran.
 
 Les messages d'encouragement décrivent la tendance sans la juger : sur sept
 jours, l'eau, le sel, le sommeil et le transit pèsent facilement un kilo, et

@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react'
 import { useLiveQuery } from 'dexie-react-hooks'
-import { Link } from 'react-router-dom'
 import { lireProfil, majProfil, PROFIL_DEFAUT } from '../db'
 import SauvegardeCarte from '../composants/Sauvegarde'
 
@@ -55,9 +54,13 @@ export default function Reglages() {
     const valeur = Number(saisi)
     if (saisi.trim() === '' || !Number.isFinite(valeur) || valeur < 0) return
 
-    // Une valeur posée à la main l'emporte : le calcul issu du profil ne doit
-    // pas l'écraser au prochain rendu.
-    majProfil({ [cle]: Math.round(valeur), objectifsAuto: false })
+    // Retaper la même valeur ne doit pas couper le calcul automatique : sans
+    // cette comparaison, un simple passage dans le champ figeait les objectifs
+    // pour de bon, et le profil semblait ensuite n'avoir plus aucun effet.
+    const arrondie = Math.round(valeur)
+    if (arrondie === profil[cle]) return
+
+    majProfil({ [cle]: arrondie, objectifsAuto: false })
   }
 
   return (
@@ -94,12 +97,25 @@ export default function Reglages() {
             Les modifier ici passe en saisie manuelle.
           </p>
         ) : (
-          <p className="note">
-            Valeurs saisies à la main : le calcul issu du profil ne les
-            remplace plus. <Link to="/profil">Revenir au calcul automatique</Link>
+          <p className="avertissement">
+            <b>Objectifs saisis à la main.</b> Le calcul issu de ton profil ne
+            les met plus à jour : changer ton poids, ton activité ou ton
+            objectif n’aura aucun effet ici tant que tu ne reviens pas au calcul
+            automatique.
           </p>
         )}
       </section>
+
+      {!profil.objectifsAuto && (
+        <div className="actions">
+          <button
+            className="bouton"
+            onClick={() => majProfil({ objectifsAuto: true })}
+          >
+            Revenir au calcul automatique
+          </button>
+        </div>
+      )}
 
       <section className="carte">
         <h2 className="carte-titre">Données locales</h2>
