@@ -303,23 +303,29 @@ export default function Profil() {
               graisse. L’app applique quand même ce que tu as demandé.
             </p>
           )}
-          <p className="note">
-            Équation de Mifflin-St Jeor. {profil.objectifsAuto ? (
-              <>Ces valeurs alimentent automatiquement l’écran du jour.</>
-            ) : (
-              <>
-                Tes objectifs ont été saisis à la main dans Réglages, ce calcul
-                ne les remplace donc pas.
-              </>
-            )}
-          </p>
-          {!profil.objectifsAuto && (
-            <button
-              className="bouton discret"
-              onClick={() => majProfil({ objectifsAuto: true })}
-            >
-              Revenir au calcul automatique
-            </button>
+          {profil.objectifsAuto ? (
+            <p className="note">
+              Équation de Mifflin-St Jeor. Ces valeurs alimentent
+              automatiquement l’écran du jour et se recalculent à chaque
+              changement de profil.
+            </p>
+          ) : (
+            <>
+              {/* L'utilisateur change son profil ici : c'est donc ici qu'il faut
+                  dire pourquoi rien ne bouge, et non dans un autre écran. */}
+              <p className="avertissement">
+                <b>Ce calcul n’est pas appliqué.</b> Tes objectifs sont en
+                saisie manuelle : l’écran du jour utilise{' '}
+                {profil.objectifKcal} kcal et ne suivra ni ton sexe, ni ton
+                poids, ni ton activité tant que tu n’auras pas rétabli le calcul.
+              </p>
+              <button
+                className="bouton"
+                onClick={() => majProfil({ objectifsAuto: true })}
+              >
+                Appliquer ces valeurs
+              </button>
+            </>
           )}
         </section>
       ) : (

@@ -132,6 +132,10 @@ export default function Reglages() {
             <dt>Réseau</dt>
             <dd>{enLigne ? 'en ligne' : 'hors ligne'}</dd>
           </div>
+          <div className="etat">
+            <dt>Version de l’app</dt>
+            <dd>{__BUILD__}</dd>
+          </div>
         </dl>
         {persistant === false && (
           <button className="bouton discret" onClick={demanderPersistance}>

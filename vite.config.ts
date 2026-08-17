@@ -2,7 +2,12 @@ import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 import { VitePWA } from 'vite-plugin-pwa'
 
+// Horodatage de la build, affiché dans Réglages : sans lui, impossible de
+// savoir si l'app installée tourne encore sur une version précédente.
+const BUILD = new Date().toISOString().slice(0, 16).replace('T', ' ')
+
 export default defineConfig({
+  define: { __BUILD__: JSON.stringify(BUILD) },
   plugins: [
     react(),
     VitePWA({
