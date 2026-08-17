@@ -281,6 +281,28 @@ export default function Profil() {
       {calcul ? (
         <section className="carte">
           <h2 className="carte-titre">Besoins calculés</h2>
+
+          {/* Les entrées du calcul, en clair : c'est le seul moyen de voir
+              d'un coup d'œil qu'une valeur n'est pas celle qu'on croit —
+              une pesée ancienne, un sexe non enregistré, un rythme oublié. */}
+          <p className="note">
+            Calculé pour <b>{profil.sexe === 'femme' ? 'une femme' : 'un homme'}</b>{' '}
+            de <b>{age(profil.naissance!)} ans</b>, <b>{profil.tailleCm} cm</b>,{' '}
+            <b>{kg1(dernier.kg)} kg</b> (pesée du{' '}
+            {new Date(dernier.date + 'T12:00:00').toLocaleDateString('fr-FR', {
+              day: 'numeric',
+              month: 'long',
+            })}
+            ), activité{' '}
+            <b>{ACTIVITES.find((a) => a.cle === profil.activite)?.nom.toLowerCase()}</b>,{' '}
+            <b>
+              {BUTS.find((b) => b.cle === profil.but)?.nom.toLowerCase()}
+              {profil.but !== 'maintien' &&
+                ` de ${(profil.rythme ?? RYTHME_DEFAUT).toString().replace('.', ',')} kg par semaine`}
+            </b>
+            .
+          </p>
+
           <dl>
             <div className="etat">
               <dt>Métabolisme de base</dt>
