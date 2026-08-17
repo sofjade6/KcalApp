@@ -29,6 +29,7 @@ export default function SyncObjectifs() {
       profil.activite!,
       profil.but!,
       profil.poidsCible,
+      profil.rythme,
     )
 
     if (

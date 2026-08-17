@@ -155,6 +155,12 @@ L'onglet Profil réunit les pesées, la courbe d'évolution, l'IMC et les donné
 corporelles. Les objectifs caloriques en découlent (Mifflin-St Jeor × facteur
 d'activité, ajusté selon le but) et alimentent l'écran du jour.
 
+Le **rythme visé** se choisit entre 0,25 et 1 kg par semaine. L'écart calorique
+quotidien en découle par la constante de 7 700 kcal par kilo de masse
+corporelle — la même que celle du contrôle de cohérence du bilan, sans quoi
+l'app se contredirait. L'écran affiche l'objectif résultant en face de chaque
+rythme.
+
 Les protéines et lipides sont bornés en **part d'énergie** autant qu'en grammes
 par kilo — protéines entre 25 et 30 %, lipides autour de 30 %. Les fixer au seul
 poids corporel écrasait les glucides dès que l'apport était réduit : un profil

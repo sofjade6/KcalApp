@@ -8,13 +8,29 @@ export const ACTIVITES: { cle: NiveauActivite; nom: string; detail: string; fact
   { cle: 'tres-intense', nom: 'Très intense', detail: 'métier physique ou double séance', facteur: 1.9 },
 ]
 
-export const BUTS: { cle: But; nom: string; ecart: number }[] = [
-  // −500 kcal/jour correspond à environ 0,5 kg par semaine, le rythme
-  // habituellement retenu comme tenable.
-  { cle: 'perte', nom: 'Perdre du poids', ecart: -500 },
-  { cle: 'maintien', nom: 'Maintenir', ecart: 0 },
-  { cle: 'prise', nom: 'Prendre du poids', ecart: 300 },
+export const BUTS: { cle: But; nom: string; sens: number }[] = [
+  { cle: 'perte', nom: 'Perdre du poids', sens: -1 },
+  { cle: 'maintien', nom: 'Maintenir', sens: 0 },
+  { cle: 'prise', nom: 'Prendre du poids', sens: 1 },
 ]
+
+/**
+ * Énergie contenue dans un kilo de masse corporelle, valeur usuelle.
+ *
+ * C'est elle qui convertit un rythme en kilos par semaine en écart calorique
+ * quotidien, et elle sert aussi au contrôle de cohérence du bilan : les deux
+ * doivent partager la même constante, sinon l'app se contredirait elle-même.
+ */
+export const KCAL_PAR_KG = 7700
+
+/** Rythme par défaut, généralement retenu comme tenable. */
+export const RYTHME_DEFAUT = 0.5
+
+export const RYTHMES = [0.25, 0.5, 0.75, 1]
+
+/** Écart calorique quotidien correspondant à un rythme hebdomadaire. */
+export const ecartQuotidien = (rythme: number, sens: number) =>
+  Math.round((sens * rythme * KCAL_PAR_KG) / 7)
 
 export function age(naissance: string, aujourdhui = new Date()): number {
   const n = new Date(naissance)
@@ -94,11 +110,13 @@ export function besoins(
   but: But,
   /** Poids visé : sert de base aux protéines quand il est renseigné. */
   poidsCible?: number,
+  /** Rythme en kg par semaine ; le but en donne le sens. */
+  rythme = RYTHME_DEFAUT,
 ): Besoins {
   const base = metabolismeBase(kg, tailleCm, ans, sexe)
   const facteur = ACTIVITES.find((a) => a.cle === activite)!.facteur
   const depense = base * facteur
-  const ecart = BUTS.find((b) => b.cle === but)!.ecart
+  const ecart = ecartQuotidien(rythme, BUTS.find((b) => b.cle === but)!.sens)
 
   const vise = depense + ecart
   const kcal = Math.round(vise / 10) * 10

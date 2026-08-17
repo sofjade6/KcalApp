@@ -2,7 +2,19 @@ import { useEffect, useState } from 'react'
 import { useLiveQuery } from 'dexie-react-hooks'
 import db, { lireProfil, majProfil, enregistrerPesee, PROFIL_DEFAUT, type Pesee, type Sexe, type But, type NiveauActivite } from '../db'
 import { cleDuJour } from '../lib/dates'
-import { ACTIVITES, BUTS, age, besoins, categorieImc, imc, poidsNormal, profilComplet } from '../lib/corps'
+import {
+  ACTIVITES,
+  BUTS,
+  RYTHMES,
+  RYTHME_DEFAUT,
+  age,
+  besoins,
+  categorieImc,
+  ecartQuotidien,
+  imc,
+  poidsNormal,
+  profilComplet,
+} from '../lib/corps'
 import { encouragement } from '../lib/encouragement'
 import CourbePoids from '../composants/CourbePoids'
 
@@ -39,6 +51,7 @@ export default function Profil() {
           profil.activite!,
           profil.but!,
           profil.poidsCible,
+          profil.rythme,
         )
       : null
 
@@ -226,7 +239,44 @@ export default function Profil() {
             </button>
           ))}
         </div>
+
       </section>
+
+      {profil.but && profil.but !== 'maintien' && (
+        <section className="carte">
+          <h2 className="carte-titre">Rythme visé</h2>
+          <div className="choix">
+            {RYTHMES.map((valeur) => {
+              const sens = BUTS.find((b) => b.cle === profil.but)!.sens
+              const ecart = ecartQuotidien(valeur, sens)
+              return (
+                <button
+                  key={valeur}
+                  className="choix-ligne"
+                  aria-pressed={(profil.rythme ?? RYTHME_DEFAUT) === valeur}
+                  onClick={() => majProfil({ rythme: valeur })}
+                >
+                  <span className="choix-nom">
+                    {valeur.toString().replace('.', ',')} kg par semaine
+                    <small>
+                      {/* Vrai signe moins plutôt qu'un trait d'union. */}
+                      {ecart > 0 ? '+' : '−'}
+                      {Math.abs(ecart)} kcal par jour
+                      {calcul && ` — objectif ${Math.round((calcul.depense + ecart) / 10) * 10} kcal`}
+                    </small>
+                  </span>
+                </button>
+              )
+            })}
+          </div>
+          <p className="note">
+            Un kilo de masse corporelle vaut environ 7 700 kcal : c’est ce
+            rapport qui convertit le rythme en écart quotidien. Au-delà de
+            0,5 kg par semaine, le déficit devient difficile à tenir et coûte
+            davantage de muscle.
+          </p>
+        </section>
+      )}
 
       {calcul ? (
         <section className="carte">

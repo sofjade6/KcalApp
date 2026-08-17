@@ -1,10 +1,7 @@
 import type { Activite, Entree, Pesee, Profil } from '../db'
 import { derniersJours } from './dates'
 import { totalKcal } from './nutrition'
-import { age, besoins, profilComplet } from './corps'
-
-/** Énergie contenue dans un kilo de masse corporelle, valeur usuelle. */
-const KCAL_PAR_KG = 7700
+import { age, besoins, profilComplet, KCAL_PAR_KG } from './corps'
 
 export interface JourBilan {
   date: string
@@ -135,6 +132,7 @@ export function coherence(
     profil.activite!,
     profil.but!,
     profil.poidsCible,
+    profil.rythme,
   )
 
   const attendue = ((moyenneKcal - depense) * 7) / KCAL_PAR_KG

@@ -105,6 +105,8 @@ export interface Profil {
   tailleCm?: number
   activite?: NiveauActivite
   but?: But
+  /** Rythme visé en kg par semaine, en valeur absolue. Le but donne le sens. */
+  rythme?: number
   poidsCible?: number
 
   objectifKcal: number
