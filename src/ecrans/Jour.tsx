@@ -14,6 +14,7 @@ import Jauge from '../composants/Jauge'
 import Eau from '../composants/Eau'
 import Activites from '../composants/Activites'
 import Rappels from '../composants/Rappels'
+import Gluten from '../composants/Gluten'
 
 export default function Jour() {
   const { date } = useParams()
@@ -211,6 +212,7 @@ export default function Jour() {
         </div>
       </section>
 
+      <Gluten entrees={entrees} />
       <Eau jour={jour} />
       <Activites jour={jour} activites={activites} />
 

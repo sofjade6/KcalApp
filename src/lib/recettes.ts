@@ -1,10 +1,12 @@
 import db, { type AlimentEnCache, type Nutriments } from '../db'
+import { resumerGluten, statutGluten, type Gluten } from './gluten'
 
 export interface Ingredient extends Nutriments {
   nom: string
   grammes: number
   /** Code de l'aliment d'origine, quand il en avait un. */
   code?: string
+  gluten?: Gluten
 }
 
 export type Recette = AlimentEnCache & {
@@ -60,6 +62,8 @@ export async function creerRecette(nom: string, ingredients: Ingredient[] = []):
     ingredients,
     poidsTotal,
     ...pour100(ingredients, poidsTotal),
+    // Une préparation hérite du statut le plus préoccupant de ses ingrédients.
+    gluten: resumerGluten(ingredients.map(statutGluten)),
     vuLe: Date.now(),
   })
   return code
@@ -92,6 +96,7 @@ export async function majRecette(
       ingredients,
       poidsTotal,
       ...pour100(ingredients, poidsUtile),
+      gluten: resumerGluten(ingredients.map(statutGluten)),
       vuLe: Date.now(),
     })
   })

@@ -1217,3 +1217,42 @@ a.ligne-nom {
   background: var(--encre);
   box-shadow: inset 0 0 0 3px var(--carte);
 }
+
+/* ---------- gluten ---------- */
+
+/* Le niveau de certitude porte sa propre teinte, doublée du libellé écrit :
+   sur un allergène, la couleur seule ne doit jamais suffire. */
+.gluten {
+  align-self: flex-start;
+  font-size: 0.8rem;
+  font-weight: 600;
+  padding: 0.3rem 0.6rem;
+  border-radius: 999px;
+  border: 1px solid currentColor;
+}
+
+.gluten-contient {
+  color: var(--alerte);
+  background: color-mix(in srgb, var(--alerte) 12%, transparent);
+}
+
+.gluten-probable {
+  color: var(--lip);
+  background: color-mix(in srgb, var(--lip) 12%, transparent);
+}
+
+.gluten-traces {
+  color: var(--encre-douce);
+  background: var(--carte-creuse);
+}
+
+.gluten-sans {
+  color: var(--gluc);
+  background: color-mix(in srgb, var(--gluc) 12%, transparent);
+}
+
+.gluten-groupe {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}

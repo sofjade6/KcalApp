@@ -1,4 +1,5 @@
 import Dexie, { type EntityTable } from 'dexie'
+import type { Gluten } from './lib/gluten'
 
 /** Valeurs nutritionnelles, toujours ramenées à 100 g. */
 export interface Nutriments {
@@ -43,6 +44,12 @@ export interface Entree extends Nutriments {
   portion?: { nom: string; grammes: number; nombre: number }
   /** Code-barres, quand l'entrée vient d'un scan. */
   code?: string
+  /**
+   * Statut gluten déclaré par l'étiquette, quand il est connu. Absent pour un
+   * aliment CIQUAL, dont le statut se déduit du libellé à l'affichage — ainsi
+   * une amélioration des règles profite aux entrées déjà enregistrées.
+   */
+  gluten?: Gluten
   source: 'ciqual' | 'openfoodfacts' | 'manuel' | 'recette'
   creeLe: number
 }
@@ -59,6 +66,7 @@ export interface AlimentEnCache extends Nutriments {
    */
   ingredients?: (Nutriments & { nom: string; grammes: number; code?: string })[]
   poidsTotal?: number
+  gluten?: Gluten
   /** Portion indiquée sur l'emballage, telle que rapportée par OpenFoodFacts. */
   portionG?: number
   portionNom?: string

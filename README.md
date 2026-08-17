@@ -113,6 +113,31 @@ la fin de la promesse « tout reste sur le téléphone ». Les rappels s'affiche
 à l'ouverture, sur l'écran du jour — pesée trop ancienne, sauvegarde trop
 ancienne.
 
+## Gluten
+
+Le gluten **n'est quantifié par aucune base**. La table CIQUAL compte 67
+constituants, aucun ne le concerne, et la réglementation européenne impose de
+déclarer l'allergène, pas de le doser — le seul seuil chiffré est celui du label
+« sans gluten », 20 mg/kg. L'app n'affiche donc jamais de grammage : elle liste
+les aliments concernés, avec le niveau de certitude de chacun.
+
+| Niveau | Source |
+| --- | --- |
+| Contient du gluten | `allergens_tags` d'OpenFoodFacts, donc l'étiquette |
+| Sans gluten | label déclaré sur l'emballage |
+| Traces possibles | `traces_tags`, déclaration distincte |
+| Peut contenir du gluten | **déduction** du libellé CIQUAL |
+
+Une déclaration d'étiquette prime toujours sur la déduction. Celle-ci repose sur
+des mots-clés dans `src/lib/gluten.ts`, avec les mêmes précautions que les
+portions usuelles : « farine de riz » et « pâtes de lentilles » sont exclues, et
+le singulier « pâte » est absent des indices — privé de ses accents, « pâté »
+devient « pate » et signalait toute terrine.
+
+Les 29 cas de contrôle passent sur les libellés CIQUAL réels ; 357 aliments sur
+2 298 sont signalés. Le statut d'une entrée CIQUAL est déduit **à l'affichage**
+et non stocké : améliorer les règles profite ainsi aux journées déjà notées.
+
 ## Portions usuelles
 
 La quantité se saisit en grammes ou en unités courantes — « 2 œufs » plutôt

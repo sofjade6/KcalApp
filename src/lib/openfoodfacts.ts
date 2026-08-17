@@ -1,4 +1,5 @@
 import type { Nutriments } from '../db'
+import { glutenDeclare, type Gluten } from './gluten'
 
 export interface ProduitTrouve extends Nutriments {
   code: string
@@ -7,6 +8,7 @@ export interface ProduitTrouve extends Nutriments {
   /** Portion de l'emballage, quand elle est exploitable. */
   portionG?: number
   portionNom?: string
+  gluten?: Gluten
 }
 
 export type Resultat =
@@ -21,7 +23,8 @@ const DELAI_MAX = 8000
 
 /** Seuls ces champs sont demandés : la fiche complète pèse plusieurs centaines de Ko. */
 const CHAMPS =
-  'product_name,product_name_fr,brands,nutriments,serving_quantity,serving_quantity_unit'
+  'product_name,product_name_fr,brands,nutriments,serving_quantity,serving_quantity_unit,' +
+  'allergens_tags,traces_tags,labels_tags'
 
 const nombre = (valeur: unknown): number | undefined =>
   typeof valeur === 'number' && Number.isFinite(valeur) ? valeur : undefined
@@ -79,6 +82,11 @@ export async function chercherProduit(code: string): Promise<Resultat> {
         marque: produit.brands?.split(',')[0]?.trim() || undefined,
         portionG: servingG,
         portionNom: servingG !== undefined ? 'portion' : undefined,
+        gluten: glutenDeclare(
+          produit.allergens_tags,
+          produit.traces_tags,
+          produit.labels_tags,
+        ),
         kcal: Math.round(kcal * 10) / 10,
         prot: nombre(n.proteins_100g) ?? 0,
         lip: nombre(n.fat_100g) ?? 0,

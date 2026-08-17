@@ -9,11 +9,13 @@ import db, {
 import { chargerCiqual } from '../lib/ciqual'
 import { cleDuJour, libelleJour } from '../lib/dates'
 import { libellePortion, portionsPour, type PortionUsuelle } from '../lib/portions'
+import { LIBELLES, statutGluten, type Gluten } from '../lib/gluten'
 import { ajouterIngredient } from '../lib/recettes'
 
 interface Brouillon extends Nutriments {
   nom: string
   code?: string
+  gluten?: Gluten
   source: Entree['source']
   portionG?: number
   portionNom?: string
@@ -68,6 +70,7 @@ export default function Portion() {
           suc: entree.suc,
           ags: entree.ags,
           code: entree.code,
+          gluten: entree.gluten,
           source: entree.source,
         })
         setGrammes(String(entree.grammes))
@@ -97,6 +100,7 @@ export default function Portion() {
               suc: local.suc,
               ags: local.ags,
               code: local.code,
+              gluten: local.gluten,
               source: local.source,
             })
           }
@@ -195,6 +199,7 @@ export default function Portion() {
         nom: aliment.nom,
         grammes: quantite,
         code: aliment.code,
+        gluten: aliment.gluten,
         kcal: aliment.kcal,
         prot: aliment.prot,
         lip: aliment.lip,
@@ -231,6 +236,7 @@ export default function Portion() {
         suc: aliment.suc,
         ags: aliment.ags,
         code: aliment.code,
+        gluten: aliment.gluten,
         source: aliment.source,
         creeLe: Date.now(),
       })
@@ -329,6 +335,15 @@ export default function Portion() {
         )}
 
       </section>
+
+      {statutGluten(aliment) !== 'inconnu' && (
+        <p className={`gluten gluten-${statutGluten(aliment)}`}>
+          {LIBELLES[statutGluten(aliment)]}
+          {aliment.gluten && aliment.gluten !== 'inconnu'
+            ? ' — d’après l’étiquette du produit'
+            : ' — déduit du libellé, à vérifier'}
+        </p>
+      )}
 
       <section className="carte">
         <h2 className="carte-titre">Pour {valide ? quantite : '—'} g</h2>
