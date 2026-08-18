@@ -1,5 +1,6 @@
 import type { Entree } from '../db'
 import { LIBELLES, statutGluten, type Gluten as Statut } from '../lib/gluten'
+import { estLiquide, unite as uniteQuantite } from '../lib/liquides'
 
 /** Ordre d'affichage : le plus préoccupant d'abord. */
 const GROUPES: Statut[] = ['contient', 'probable', 'traces']
@@ -52,7 +53,10 @@ export default function Gluten({ entrees }: { entrees: Entree[] }) {
                 {parStatut.get(statut)!.map((entree) => (
                   <div className="ligne" key={entree.id}>
                     <span className="ligne-nom">{entree.nom}</span>
-                    <span className="ligne-kcal">{entree.grammes} g</span>
+                    <span className="ligne-kcal">
+                      {entree.grammes}{' '}
+                      {uniteQuantite(estLiquide(entree.nom, undefined, entree.liquide))}
+                    </span>
                   </div>
                 ))}
               </div>

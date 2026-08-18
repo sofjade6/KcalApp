@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import { useLiveQuery } from 'dexie-react-hooks'
 import db, { SECONDAIRES } from '../db'
+import { estLiquide, unite as uniteQuantite } from '../lib/liquides'
 import {
   estRecette,
   kcalIngredient,
@@ -104,7 +105,9 @@ export default function Recette() {
               <div className="ligne" key={`${i.nom}-${rang}`}>
                 <span className="ligne-nom">
                   {i.nom}
-                  <span className="ligne-detail">{i.grammes} g</span>
+                  <span className="ligne-detail">
+                    {i.grammes} {uniteQuantite(estLiquide(i.nom, undefined, i.liquide))}
+                  </span>
                 </span>
                 <span className="ligne-kcal">
                   {kcalIngredient(i)} kcal

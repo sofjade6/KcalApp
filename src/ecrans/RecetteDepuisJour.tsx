@@ -3,6 +3,7 @@ import { Link, useNavigate, useSearchParams } from 'react-router-dom'
 import db, { type Entree } from '../db'
 import { cleDuJour, libelleJour } from '../lib/dates'
 import { kcalPortion } from '../lib/nutrition'
+import { estLiquide, unite as uniteQuantite } from '../lib/liquides'
 import { creerRecette } from '../lib/recettes'
 
 /**
@@ -98,7 +99,9 @@ export default function RecetteDepuisJour() {
                 >
                   <span className="ligne-nom">
                     {e.nom}
-                    <span className="ligne-detail">{e.grammes} g</span>
+                    <span className="ligne-detail">
+                      {e.grammes} {uniteQuantite(estLiquide(e.nom, undefined, e.liquide))}
+                    </span>
                   </span>
                   <span className="ligne-kcal">{kcalPortion(e)} kcal</span>
                 </button>

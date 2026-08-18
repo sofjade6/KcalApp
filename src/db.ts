@@ -50,6 +50,8 @@ export interface Entree extends Nutriments {
    * une amélioration des règles profite aux entrées déjà enregistrées.
    */
   gluten?: Gluten
+  /** Compté en millilitres plutôt qu'en grammes. */
+  liquide?: boolean
   source: 'ciqual' | 'openfoodfacts' | 'manuel' | 'recette'
   creeLe: number
 }
@@ -64,9 +66,16 @@ export interface AlimentEnCache extends Nutriments {
    * valeurs pour 100 g : c'est ce qui permet de recalculer la préparation
    * quand on ajoute ou retire quelque chose.
    */
-  ingredients?: (Nutriments & { nom: string; grammes: number; code?: string })[]
+  ingredients?: (Nutriments & {
+    nom: string
+    grammes: number
+    code?: string
+    gluten?: Gluten
+    liquide?: boolean
+  })[]
   poidsTotal?: number
   gluten?: Gluten
+  liquide?: boolean
   /** Portion indiquée sur l'emballage, telle que rapportée par OpenFoodFacts. */
   portionG?: number
   portionNom?: string

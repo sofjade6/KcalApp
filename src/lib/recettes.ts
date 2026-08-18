@@ -7,6 +7,7 @@ export interface Ingredient extends Nutriments {
   /** Code de l'aliment d'origine, quand il en avait un. */
   code?: string
   gluten?: Gluten
+  liquide?: boolean
 }
 
 export type Recette = AlimentEnCache & {

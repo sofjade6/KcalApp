@@ -10,12 +10,14 @@ import { chargerCiqual } from '../lib/ciqual'
 import { cleDuJour, libelleJour } from '../lib/dates'
 import { libellePortion, portionsPour, type PortionUsuelle } from '../lib/portions'
 import { LIBELLES, statutGluten, type Gluten } from '../lib/gluten'
+import { estLiquide, unite as uniteQuantite } from '../lib/liquides'
 import { ajouterIngredient } from '../lib/recettes'
 
 interface Brouillon extends Nutriments {
   nom: string
   code?: string
   gluten?: Gluten
+  liquide: boolean
   source: Entree['source']
   portionG?: number
   portionNom?: string
@@ -71,6 +73,7 @@ export default function Portion() {
           ags: entree.ags,
           code: entree.code,
           gluten: entree.gluten,
+          liquide: estLiquide(entree.nom, undefined, entree.liquide),
           source: entree.source,
         })
         setGrammes(String(entree.grammes))
@@ -101,6 +104,7 @@ export default function Portion() {
               ags: local.ags,
               code: local.code,
               gluten: local.gluten,
+              liquide: estLiquide(local.nom, undefined, local.liquide),
               source: local.source,
             })
           }
@@ -120,6 +124,7 @@ export default function Portion() {
             suc: trouve.suc,
             ags: trouve.ags,
             code: trouve.c,
+            liquide: estLiquide(trouve.n, trouve.g),
             source: 'ciqual',
           })
         })
@@ -200,6 +205,7 @@ export default function Portion() {
         grammes: quantite,
         code: aliment.code,
         gluten: aliment.gluten,
+        liquide: aliment.liquide,
         kcal: aliment.kcal,
         prot: aliment.prot,
         lip: aliment.lip,
@@ -237,6 +243,7 @@ export default function Portion() {
         ags: aliment.ags,
         code: aliment.code,
         gluten: aliment.gluten,
+        liquide: aliment.liquide,
         source: aliment.source,
         creeLe: Date.now(),
       })
@@ -279,7 +286,9 @@ export default function Portion() {
                   onClick={() => choisirUnite(portion)}
                 >
                   1 {portion.nom}
-                  <small>{portion.grammes} g</small>
+                  <small>
+                    {portion.grammes} {uniteQuantite(aliment.liquide)}
+                  </small>
                 </button>
               ))}
             </div>
@@ -298,7 +307,9 @@ export default function Portion() {
             </button>
             <span className="compteur-valeur">
               {libellePortion(unite, nombre)}
-              <small>{quantite} g</small>
+              <small>
+                {quantite} {uniteQuantite(aliment.liquide)}
+              </small>
             </span>
             <button
               className="compteur-bouton"
@@ -312,7 +323,9 @@ export default function Portion() {
           <label className="champ">
             <span className="champ-nom">
               Quantité
-              <small>en grammes</small>
+              <small>
+                en {aliment.liquide ? 'millilitres' : 'grammes'}
+              </small>
             </span>
             <input
               type="number"
@@ -322,6 +335,14 @@ export default function Portion() {
               onChange={(e) => setGrammes(e.target.value)}
             />
           </label>
+        )}
+
+        {aliment.liquide && (
+          <p className="note">
+            Compté en millilitres. Les valeurs sont rapportées à 100{' '}
+            {aliment.source === 'openfoodfacts' ? 'ml, comme sur l’étiquette' : 'g, un millilitre étant compté pour un gramme'}
+            .
+          </p>
         )}
 
         {recette ? (
@@ -346,7 +367,9 @@ export default function Portion() {
       )}
 
       <section className="carte">
-        <h2 className="carte-titre">Pour {valide ? quantite : '—'} g</h2>
+        <h2 className="carte-titre">
+          Pour {valide ? quantite : '—'} {uniteQuantite(aliment.liquide)}
+        </h2>
         <dl>
           {apercu.map(({ nom, valeur, unite, decimales }) => (
             <div className="etat" key={nom}>

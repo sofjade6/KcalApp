@@ -156,6 +156,27 @@ pomme » proposait « 1 pomme, 150 g ». Toute nouvelle règle doit être vérif
 contre les libellés CIQUAL réels, pas seulement contre l'exemple qui l'a
 motivée.
 
+## Boissons comptées en millilitres
+
+Une boisson se saisit en ml, un solide en grammes. La détection ne repose pas
+sur des mots-clés mais sur des signaux autoritatifs :
+
+- **produits scannés** : `product_quantity_unit` d'OpenFoodFacts. Les catégories
+  y sont inutilisables — un muesli s'y trouve rangé parmi les boissons.
+- **table CIQUAL** : le groupe `06`, « eaux et autres boissons ». Il ne suffit
+  pas seul, on y trouve du café soluble, du thé en feuilles et des sirops à
+  diluer : les présentations en poudre ou à reconstituer sont écartées. Les
+  laits buvables du groupe `05` et les soupes du groupe `01` sont ajoutés.
+
+263 aliments sur 2 298 sont comptés en millilitres, avec 21 cas de contrôle
+vérifiés sur les libellés réels.
+
+Les valeurs restent rapportées à 100 g, **un millilitre étant compté pour un
+gramme**. Pour une boisson scannée c'est exact — l'étiquette déclare déjà par
+100 ml, et OpenFoodFacts relaie cette valeur telle quelle. Pour CIQUAL c'est
+approché à quelques pourcents près, la densité d'un soda ou d'un lait dépassant
+légèrement 1. L'écran de quantité le précise selon la source.
+
 ## Sauvegarde
 
 Les données ne vivent que sur l'appareil : perdre le téléphone, c'est perdre

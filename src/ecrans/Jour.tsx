@@ -10,6 +10,7 @@ import db, {
 import { cleDuJour, decalerJour, estAujourdhui, libelleJour, versDate } from '../lib/dates'
 import { cumuler, kcalPortion, repartition, totalKcal } from '../lib/nutrition'
 import { libellePortion } from '../lib/portions'
+import { estLiquide, unite as uniteQuantite } from '../lib/liquides'
 import Jauge from '../composants/Jauge'
 import Eau from '../composants/Eau'
 import Activites from '../composants/Activites'
@@ -192,9 +193,12 @@ export default function Jour() {
                 <span className="ligne-nom">
                   {entree.nom}
                   <span className="ligne-detail">
-                    {entree.portion
-                      ? `${libellePortion(entree.portion, entree.portion.nombre)} · ${entree.grammes} g`
-                      : `${entree.grammes} g`}
+                    {(() => {
+                      const u = uniteQuantite(estLiquide(entree.nom, undefined, entree.liquide))
+                      return entree.portion
+                        ? `${libellePortion(entree.portion, entree.portion.nombre)} · ${entree.grammes} ${u}`
+                        : `${entree.grammes} ${u}`
+                    })()}
                   </span>
                 </span>
                 <span className="ligne-kcal">{kcalPortion(entree)} kcal</span>
