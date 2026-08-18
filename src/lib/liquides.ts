@@ -8,6 +8,7 @@ import { normaliser } from './recherche'
 const GROUPE_BOISSONS = '06'
 const GROUPE_LAITIERS = '05'
 const GROUPE_PLATS = '01'
+const GROUPE_GRASSES = '09'
 
 /** Présentations solides ou à reconstituer, malgré leur classement en boisson. */
 const PAS_LIQUIDE = /poudre|soluble|lyophilis|\bfeuilles?\b|\bgrains?\b|a diluer|\bsachet\b|\bextrait\b/
@@ -17,6 +18,16 @@ const LAITIER_BUVABLE = /^lait\b|^boisson lactee|yaourt a boire|lait fermente|^l
 
 /** Préparations liquides servies en volume. */
 const PLAT_LIQUIDE = /\bsoupe\b|potage|veloute|bouillon|consomme/
+
+/**
+ * Huiles alimentaires, liquides à température ambiante.
+ *
+ * Le groupe des matières grasses contient aussi des corps solides — beurres,
+ * margarines, saindoux — et des « huiles » qui n'en sont pas : l'huile de coco
+ * et le beurre de cacao sont solides et se pèsent.
+ */
+const HUILE_LIQUIDE = /^huile\b/
+const GRASSE_SOLIDE = /beurre|graisse|solide|\bcoco\b|karite|palme/
 
 /**
  * Un aliment se compte-t-il en millilitres ?
@@ -38,13 +49,17 @@ export function estLiquide(
   if (groupe === GROUPE_BOISSONS) return true
   if (groupe === GROUPE_LAITIERS) return LAITIER_BUVABLE.test(cherchable)
   if (groupe === GROUPE_PLATS) return PLAT_LIQUIDE.test(cherchable)
+  if (groupe === GROUPE_GRASSES) {
+    return HUILE_LIQUIDE.test(cherchable) && !GRASSE_SOLIDE.test(cherchable)
+  }
 
   // Sans groupe connu — entrée ancienne, saisie manuelle — le libellé décide.
   if (groupe === undefined) {
     return (
       LAITIER_BUVABLE.test(cherchable) ||
       PLAT_LIQUIDE.test(cherchable) ||
-      /^(eau|the|cafe|jus|boisson|biere|vin|cidre|soda|limonade|sirop|smoothie|nectar|infusion|tisane)\b/.test(
+      (HUILE_LIQUIDE.test(cherchable) && !GRASSE_SOLIDE.test(cherchable)) ||
+      /^(eau|the|cafe|jus|boisson|biere|vin|cidre|soda|limonade|sirop|smoothie|nectar|infusion|tisane|vinaigre)\b/.test(
         cherchable,
       )
     )
@@ -53,11 +68,18 @@ export function estLiquide(
 }
 
 /**
- * Unité d'affichage.
+ * Masse d'un millilitre, en grammes.
  *
- * Les valeurs nutritionnelles restent rapportées à 100 g : un millilitre est
- * compté pour un gramme. Exact pour une boisson scannée, dont l'étiquette
- * déclare déjà par 100 ml ; approché à quelques pourcents près pour la table
- * CIQUAL, où la densité d'un soda ou d'un lait dépasse légèrement 1.
+ * Les valeurs nutritionnelles sont rapportées à 100 g : convertir le volume
+ * saisi en masse est ce qui garde le calcul juste. Pour les boissons aqueuses,
+ * 1 ml pèse assez exactement 1 g pour qu'un facteur soit inutile. Pour une
+ * huile, en revanche, l'écart atteint 8 % — sur un aliment à 900 kcal, le
+ * négliger fausserait le compte de façon systématique.
  */
+export function densite(nom: string): number {
+  const cherchable = normaliser(nom)
+  if (HUILE_LIQUIDE.test(cherchable)) return 0.92
+  return 1
+}
+
 export const unite = (liquide: boolean) => (liquide ? 'ml' : 'g')

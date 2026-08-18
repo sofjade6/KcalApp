@@ -194,10 +194,14 @@ export default function Jour() {
                   {entree.nom}
                   <span className="ligne-detail">
                     {(() => {
-                      const u = uniteQuantite(estLiquide(entree.nom, undefined, entree.liquide))
+                      const liquide = estLiquide(entree.nom, undefined, entree.liquide)
+                      const u = uniteQuantite(liquide)
+                      // Le volume saisi prime : une huile notée en ml ne doit
+                      // pas se réafficher en grammes.
+                      const q = liquide ? (entree.ml ?? entree.grammes) : entree.grammes
                       return entree.portion
-                        ? `${libellePortion(entree.portion, entree.portion.nombre)} · ${entree.grammes} ${u}`
-                        : `${entree.grammes} ${u}`
+                        ? `${libellePortion(entree.portion, entree.portion.nombre)} · ${q} ${u}`
+                        : `${q} ${u}`
                     })()}
                   </span>
                 </span>

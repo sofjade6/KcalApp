@@ -2,8 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import { Link, useNavigate, useSearchParams } from 'react-router-dom'
 import { BrowserMultiFormatReader } from '@zxing/browser'
 import { BarcodeFormat, DecodeHintType } from '@zxing/library'
-import db from '../db'
-import { chercherProduit } from '../lib/openfoodfacts'
+import { resoudreProduit } from '../lib/produit'
 
 /** Codes-barres alimentaires uniquement : restreindre accélère et fiabilise. */
 const FORMATS = [
@@ -45,16 +44,10 @@ export default function Scanner() {
       arreter?.()
       setEtat({ phase: 'recherche', code })
 
-      // Un produit déjà scanné est resservi depuis l'appareil : instantané,
-      // et disponible hors ligne.
-      const connu = await db.aliments.get(code)
-      if (connu) return navigate(`/ajouter/${code}${suffixe}`)
-
-      const resultat = await chercherProduit(code)
+      const resultat = await resoudreProduit(code)
       if (!vivant) return
 
-      if (resultat.etat === 'trouve') {
-        await db.aliments.put({ ...resultat.produit, source: 'openfoodfacts', vuLe: Date.now() })
+      if (resultat.etat === 'connu' || resultat.etat === 'trouve') {
         return navigate(`/ajouter/${code}${suffixe}`)
       }
       if (resultat.etat === 'inconnu') {
@@ -131,6 +124,9 @@ export default function Scanner() {
             <video ref={video} playsInline muted autoPlay />
             <div className="viseur-cadre" aria-hidden="true" />
           </div>
+          <Link className="modifier-aliment" to={`/code${suffixe}`}>
+            Le code ne passe pas ? Le saisir à la main
+          </Link>
           <p className="note">
             {etat.phase === 'demarrage' && 'Activation de la caméra…'}
             {etat.phase === 'scan' &&
@@ -155,6 +151,9 @@ export default function Scanner() {
                 Saisir ce produit
               </Link>
             )}
+            <Link className="bouton discret" to={`/code${suffixe}`}>
+              Saisir le code à la main
+            </Link>
             <Link className="bouton discret" to={`/ajouter${suffixe}`}>
               Chercher par nom
             </Link>

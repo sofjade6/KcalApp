@@ -10,7 +10,7 @@ import { chargerCiqual } from '../lib/ciqual'
 import { cleDuJour, libelleJour } from '../lib/dates'
 import { libellePortion, portionsPour, type PortionUsuelle } from '../lib/portions'
 import { LIBELLES, statutGluten, type Gluten } from '../lib/gluten'
-import { estLiquide, unite as uniteQuantite } from '../lib/liquides'
+import { densite, estLiquide, unite as uniteQuantite } from '../lib/liquides'
 import { ajouterIngredient } from '../lib/recettes'
 
 interface Brouillon extends Nutriments {
@@ -76,7 +76,7 @@ export default function Portion() {
           liquide: estLiquide(entree.nom, undefined, entree.liquide),
           source: entree.source,
         })
-        setGrammes(String(entree.grammes))
+        setGrammes(String(entree.ml ?? entree.grammes))
         if (entree.portion) {
           setUnite({ nom: entree.portion.nom, grammes: entree.portion.grammes })
           setNombre(entree.portion.nombre)
@@ -158,17 +158,27 @@ export default function Portion() {
       : undefined,
   )
 
-  // La quantité en grammes reste la valeur de référence ; une unité choisie
-  // ne fait que la calculer.
-  const quantite = unite ? Math.round(unite.grammes * nombre) : Number(grammes)
-  const valide = Number.isFinite(quantite) && quantite > 0
-  const facteur = valide ? quantite / 100 : 0
+  // La masse reste la seule base du calcul. Le champ, lui, contient un volume
+  // quand l'aliment se compte en millilitres : la conversion passe par la
+  // densité, sans quoi une huile serait surestimée de 8 %.
+  const d = aliment.liquide ? densite(aliment.nom) : 1
+  const saisi = Number(grammes)
+  const masse = unite
+    ? Math.round(unite.grammes * nombre)
+    : Math.round(saisi * d)
+  const volume = Math.round(masse / d)
+  const affichee = aliment.liquide ? volume : masse
+
+  const valide = Number.isFinite(masse) && masse > 0
+  const facteur = valide ? masse / 100 : 0
 
   function choisirUnite(portion: PortionUsuelle) {
     const memeUnite = unite?.nom === portion.nom
     setUnite(memeUnite ? null : portion)
     if (!memeUnite) setNombre(1)
-    else setGrammes(String(quantite))
+    // Retour à la saisie libre : on repart de la valeur affichée, donc du
+    // volume pour un liquide.
+    else setGrammes(String(affichee))
   }
 
   function ajuster(delta: number) {
@@ -202,7 +212,7 @@ export default function Portion() {
     if (recette) {
       await ajouterIngredient(recette, {
         nom: aliment.nom,
-        grammes: quantite,
+        grammes: masse,
         code: aliment.code,
         gluten: aliment.gluten,
         liquide: aliment.liquide,
@@ -224,14 +234,16 @@ export default function Portion() {
 
     if (modeEdition) {
       await db.entrees.update(Number(id), {
-        grammes: quantite,
+        grammes: masse,
+        ml: aliment.liquide ? volume : undefined,
         portion: portionRetenue,
       })
     } else {
       await db.entrees.add({
         date: jour,
         nom: aliment.nom,
-        grammes: quantite,
+        grammes: masse,
+        ml: aliment.liquide ? volume : undefined,
         portion: portionRetenue,
         kcal: aliment.kcal,
         prot: aliment.prot,
@@ -287,7 +299,10 @@ export default function Portion() {
                 >
                   1 {portion.nom}
                   <small>
-                    {portion.grammes} {uniteQuantite(aliment.liquide)}
+                    {aliment.liquide
+                      ? Math.round(portion.grammes / d)
+                      : portion.grammes}{' '}
+                    {uniteQuantite(aliment.liquide)}
                   </small>
                 </button>
               ))}
@@ -308,7 +323,7 @@ export default function Portion() {
             <span className="compteur-valeur">
               {libellePortion(unite, nombre)}
               <small>
-                {quantite} {uniteQuantite(aliment.liquide)}
+                {affichee} {uniteQuantite(aliment.liquide)}
               </small>
             </span>
             <button
@@ -339,9 +354,20 @@ export default function Portion() {
 
         {aliment.liquide && (
           <p className="note">
-            Compté en millilitres. Les valeurs sont rapportées à 100{' '}
-            {aliment.source === 'openfoodfacts' ? 'ml, comme sur l’étiquette' : 'g, un millilitre étant compté pour un gramme'}
-            .
+            Compté en millilitres.{' '}
+            {d !== 1 ? (
+              <>
+                Converti en masse à {d.toString().replace('.', ',')} g/ml pour le
+                calcul — {affichee} ml pèsent {masse} g.
+              </>
+            ) : aliment.source === 'openfoodfacts' ? (
+              <>Les valeurs sont rapportées à 100 ml, comme sur l’étiquette.</>
+            ) : (
+              <>
+                Les valeurs sont rapportées à 100 g, un millilitre d’une boisson
+                pesant assez exactement un gramme.
+              </>
+            )}
           </p>
         )}
 
@@ -368,7 +394,7 @@ export default function Portion() {
 
       <section className="carte">
         <h2 className="carte-titre">
-          Pour {valide ? quantite : '—'} {uniteQuantite(aliment.liquide)}
+          Pour {valide ? affichee : '—'} {uniteQuantite(aliment.liquide)}
         </h2>
         <dl>
           {apercu.map(({ nom, valeur, unite, decimales }) => (

@@ -32,6 +32,7 @@ const ECRANS = [
   { nom: 'profil', chemin: '/profil', attendre: '.pesee input' },
   { nom: 'recherche', chemin: '/ajouter', attendre: '.recherche input' },
   { nom: 'saisir', chemin: '/saisir', attendre: '.champ-large input' },
+  { nom: 'code', chemin: '/code', attendre: '.champ-large input' },
   { nom: 'reglages', chemin: '/reglages', attendre: '.champ input' },
 ]
 

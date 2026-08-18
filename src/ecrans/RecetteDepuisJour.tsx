@@ -100,7 +100,8 @@ export default function RecetteDepuisJour() {
                   <span className="ligne-nom">
                     {e.nom}
                     <span className="ligne-detail">
-                      {e.grammes} {uniteQuantite(estLiquide(e.nom, undefined, e.liquide))}
+                      {estLiquide(e.nom, undefined, e.liquide) ? (e.ml ?? e.grammes) : e.grammes}{' '}
+                      {uniteQuantite(estLiquide(e.nom, undefined, e.liquide))}
                     </span>
                   </span>
                   <span className="ligne-kcal">{kcalPortion(e)} kcal</span>

@@ -168,14 +168,33 @@ sur des mots-clés mais sur des signaux autoritatifs :
   diluer : les présentations en poudre ou à reconstituer sont écartées. Les
   laits buvables du groupe `05` et les soupes du groupe `01` sont ajoutés.
 
-263 aliments sur 2 298 sont comptés en millilitres, avec 21 cas de contrôle
-vérifiés sur les libellés réels.
+Les **huiles** du groupe `09` s'y ajoutent, hors corps solides — beurre de
+cacao, graisse de coco et karité portent « huile » dans leur libellé sans être
+liquides.
 
-Les valeurs restent rapportées à 100 g, **un millilitre étant compté pour un
-gramme**. Pour une boisson scannée c'est exact — l'étiquette déclare déjà par
-100 ml, et OpenFoodFacts relaie cette valeur telle quelle. Pour CIQUAL c'est
-approché à quelques pourcents près, la densité d'un soda ou d'un lait dépassant
-légèrement 1. L'écran de quantité le précise selon la source.
+Les valeurs nutritionnelles étant rapportées à 100 g, le volume saisi est
+**converti en masse** : `Entree.grammes` garde la masse réelle, `Entree.ml` le
+volume tapé. Pour une boisson aqueuse le facteur vaut 1 et les deux coïncident ;
+pour une huile il vaut 0,92, et 15 ml pèsent 14 g — négliger l'écart
+surestimerait de 8 % un aliment à 900 kcal. L'écran de quantité affiche la
+conversion quand elle a lieu.
+
+Les portions usuelles étant définies en masse, leur équivalent en volume est
+calculé à l'affichage : une cuillère à soupe d'huile vaut 10 g, soit 11 ml.
+
+## Recherche par code-barres saisi
+
+Le scan échoue sur un emballage froissé, brillant ou mal éclairé. Les chiffres
+imprimés sous le code se saisissent alors au clavier, depuis la recherche ou
+depuis l'écran de scan.
+
+La **clé de contrôle** est vérifiée avant toute requête : le dernier chiffre
+d'un EAN-8 ou EAN-13 se recalcule depuis les précédents, ce qui signale une
+coquille immédiatement plutôt que de rapporter un « produit inconnu » trompeur.
+
+Le scan et la saisie partagent la même résolution (`src/lib/produit.ts`) : cache
+local d'abord, puis OpenFoodFacts, puis saisie manuelle avec le code en
+paramètre.
 
 ## Sauvegarde
 

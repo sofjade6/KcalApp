@@ -118,6 +118,10 @@ export default function Ajouter() {
         Scanner un code-barres
       </Link>
 
+      <Link to={`/code${suffixe}`} className="modifier-aliment">
+        Ou saisir les chiffres du code-barres
+      </Link>
+
       <label className="recherche">
         <span className="sr-only">Rechercher un aliment</span>
         <input

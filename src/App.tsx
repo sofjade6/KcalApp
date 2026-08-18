@@ -12,6 +12,7 @@ import Portion from './ecrans/Portion'
 import Profil from './ecrans/Profil'
 import SyncObjectifs from './composants/SyncObjectifs'
 import Saisir from './ecrans/Saisir'
+import Code from './ecrans/Code'
 
 // ZXing pèse près de 500 Ko à lui seul. Le charger à la demande évite de
 // l'imposer à l'écran du jour, qui est ouvert bien plus souvent que le scan.
@@ -93,6 +94,7 @@ export default function App() {
           <Route path="/aliment/:code" element={<Aliment />} />
           <Route path="/ajouter" element={<Ajouter />} />
           <Route path="/saisir" element={<Saisir />} />
+          <Route path="/code" element={<Code />} />
           <Route
             path="/scanner"
             element={

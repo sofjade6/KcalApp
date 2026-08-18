@@ -52,6 +52,12 @@ export interface Entree extends Nutriments {
   gluten?: Gluten
   /** Compté en millilitres plutôt qu'en grammes. */
   liquide?: boolean
+  /**
+   * Volume saisi, quand la quantité a été donnée en millilitres. `grammes`
+   * reste la masse réelle, seule base du calcul : pour une huile, 10 ml ne
+   * pèsent que 9,2 g.
+   */
+  ml?: number
   source: 'ciqual' | 'openfoodfacts' | 'manuel' | 'recette'
   creeLe: number
 }

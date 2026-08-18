@@ -54,7 +54,9 @@ export default function Gluten({ entrees }: { entrees: Entree[] }) {
                   <div className="ligne" key={entree.id}>
                     <span className="ligne-nom">{entree.nom}</span>
                     <span className="ligne-kcal">
-                      {entree.grammes}{' '}
+                      {estLiquide(entree.nom, undefined, entree.liquide)
+                        ? (entree.ml ?? entree.grammes)
+                        : entree.grammes}{' '}
                       {uniteQuantite(estLiquide(entree.nom, undefined, entree.liquide))}
                     </span>
                   </div>
