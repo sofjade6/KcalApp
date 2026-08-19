@@ -161,8 +161,12 @@ motivée.
 Une boisson se saisit en ml, un solide en grammes. La détection ne repose pas
 sur des mots-clés mais sur des signaux autoritatifs :
 
-- **produits scannés** : `product_quantity_unit` d'OpenFoodFacts. Les catégories
-  y sont inutilisables — un muesli s'y trouve rangé parmi les boissons.
+- **produits scannés** : l'unité de l'emballage rapportée par OpenFoodFacts,
+  en **trois états** — `ml` tranche pour le volume, `g` pour la masse, et une
+  fiche muette laisse la question ouverte pour que la déduction sur le nom
+  prenne le relais. Renvoyer « non » faute d'information faisait passer une
+  boisson mal renseignée en grammes. Les catégories, elles, sont inutilisables :
+  un muesli et un beurre de cacahuète s'y trouvent rangés parmi les boissons.
 - **table CIQUAL** : le groupe `06`, « eaux et autres boissons ». Il ne suffit
   pas seul, on y trouve du café soluble, du thé en feuilles et des sirops à
   diluer : les présentations en poudre ou à reconstituer sont écartées. Les
@@ -193,6 +197,11 @@ sous la kilocalorie, et un facteur y serait de la fausse précision.
 
 Les portions usuelles étant définies en masse, leur équivalent en volume est
 calculé à l'affichage : une cuillère à soupe d'huile vaut 10 g, soit 11 ml.
+
+Aucune détection ne pouvant couvrir des fiches inégalement renseignées, l'écran
+de quantité porte un **sélecteur grammes / millilitres**. Le choix est retenu
+pour le produit concerné : la fiche est fautive, pas la saisie du jour, et le
+cas se reproduirait.
 
 ## Recherche par code-barres saisi
 

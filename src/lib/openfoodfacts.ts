@@ -66,13 +66,19 @@ export async function chercherProduit(code: string): Promise<Resultat> {
     if (!nom) return { etat: 'incomplet', nom: code }
     if (kcal === undefined) return { etat: 'incomplet', nom }
 
-    // Les valeurs nutritionnelles étant ramenées à 100 g, une portion en
-    // millilitres n'est exploitable qu'en l'assimilant à des grammes — vrai
-    // pour les boissons, dont la densité est proche de 1.
-    // L'unité de l'emballage tranche : les catégories d'OpenFoodFacts ne sont
-    // pas fiables pour ça — un muesli s'y trouve rangé parmi les boissons.
-    const liquide =
-      produit.product_quantity_unit === 'ml' || produit.serving_quantity_unit === 'ml'
+    // L'unité de l'emballage tranche, quand elle est renseignée : les
+    // catégories d'OpenFoodFacts ne sont pas fiables pour ça — un muesli et un
+    // beurre de cacahuète s'y trouvent rangés parmi les boissons.
+    //
+    // Trois états et non deux : une fiche muette sur l'unité laisse la
+    // question ouverte, pour que la déduction sur le nom prenne le relais.
+    // Renvoyer `false` faisait passer une boisson mal renseignée en grammes.
+    const unites = [produit.product_quantity_unit, produit.serving_quantity_unit]
+    const liquide = unites.includes('ml')
+      ? true
+      : unites.includes('g')
+        ? false
+        : undefined
 
     const uniteServing = produit.serving_quantity_unit
     const servingG =
