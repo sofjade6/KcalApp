@@ -170,7 +170,15 @@ sur des mots-clés mais sur des signaux autoritatifs :
 
 Les **huiles** du groupe `09` s'y ajoutent, hors corps solides — beurre de
 cacao, graisse de coco et karité portent « huile » dans leur libellé sans être
-liquides.
+liquides. Puis les **vinaigres et sauces versables** du groupe `10`, par liste
+d'entrée : le groupe est surtout fait de poudres, sels et épices. L'ancrage en
+début de libellé est délibéré — « cornichon au vinaigre » et « museau de porc
+vinaigrette » n'en sont pas. Les sauces épaisses restent en grammes : pesto,
+ketchup, moutarde, mayonnaise.
+
+303 aliments sur 2 298 sont comptés en millilitres, répartis entre les boissons
+(175), les plats liquides (46), les produits laitiers buvables (42), les huiles
+(29) et les condiments (11).
 
 Les valeurs nutritionnelles étant rapportées à 100 g, le volume saisi est
 **converti en masse** : `Entree.grammes` garde la masse réelle, `Entree.ml` le
@@ -178,6 +186,10 @@ volume tapé. Pour une boisson aqueuse le facteur vaut 1 et les deux coïncident
 pour une huile il vaut 0,92, et 15 ml pèsent 14 g — négliger l'écart
 surestimerait de 8 % un aliment à 900 kcal. L'écran de quantité affiche la
 conversion quand elle a lieu.
+
+Vinaigres et sauces gardent un facteur de 1 bien que leur densité aille jusqu'à
+1,15 : sur des condiments peu caloriques employés par cuillerées, l'écart reste
+sous la kilocalorie, et un facteur y serait de la fausse précision.
 
 Les portions usuelles étant définies en masse, leur équivalent en volume est
 calculé à l'affichage : une cuillère à soupe d'huile vaut 10 g, soit 11 ml.

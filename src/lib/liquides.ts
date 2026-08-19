@@ -9,6 +9,7 @@ const GROUPE_BOISSONS = '06'
 const GROUPE_LAITIERS = '05'
 const GROUPE_PLATS = '01'
 const GROUPE_GRASSES = '09'
+const GROUPE_AIDES = '10'
 
 /** Présentations solides ou à reconstituer, malgré leur classement en boisson. */
 const PAS_LIQUIDE = /poudre|soluble|lyophilis|\bfeuilles?\b|\bgrains?\b|a diluer|\bsachet\b|\bextrait\b/
@@ -28,6 +29,19 @@ const PLAT_LIQUIDE = /\bsoupe\b|potage|veloute|bouillon|consomme/
  */
 const HUILE_LIQUIDE = /^huile\b/
 const GRASSE_SOLIDE = /beurre|graisse|solide|\bcoco\b|karite|palme/
+
+/**
+ * Vinaigres et sauces versables, parmi les aides culinaires.
+ *
+ * Le groupe est surtout fait de poudres, sels et épices : seule une liste
+ * d'entrée l'ouvre. L'ancrage en début de libellé est délibéré — « cornichon
+ * au vinaigre » et « museau de porc vinaigrette » ne sont pas des liquides.
+ */
+const CONDIMENT_LIQUIDE = /^vinaigre\b|^sauce\b|^nuoc/
+
+/** Sauces épaisses, qui se dosent à la cuillère et se pèsent. */
+const CONDIMENT_EPAIS =
+  /pesto|mayonnaise|ketchup|moutarde|aioli|tartare|tapenade|houmous|guacamole|poudre|deshydrate|\bseche\b|\bcube\b|concentre de tomate/
 
 /**
  * Un aliment se compte-t-il en millilitres ?
@@ -52,6 +66,9 @@ export function estLiquide(
   if (groupe === GROUPE_GRASSES) {
     return HUILE_LIQUIDE.test(cherchable) && !GRASSE_SOLIDE.test(cherchable)
   }
+  if (groupe === GROUPE_AIDES) {
+    return CONDIMENT_LIQUIDE.test(cherchable) && !CONDIMENT_EPAIS.test(cherchable)
+  }
 
   // Sans groupe connu — entrée ancienne, saisie manuelle — le libellé décide.
   if (groupe === undefined) {
@@ -59,7 +76,8 @@ export function estLiquide(
       LAITIER_BUVABLE.test(cherchable) ||
       PLAT_LIQUIDE.test(cherchable) ||
       (HUILE_LIQUIDE.test(cherchable) && !GRASSE_SOLIDE.test(cherchable)) ||
-      /^(eau|the|cafe|jus|boisson|biere|vin|cidre|soda|limonade|sirop|smoothie|nectar|infusion|tisane|vinaigre)\b/.test(
+      (CONDIMENT_LIQUIDE.test(cherchable) && !CONDIMENT_EPAIS.test(cherchable)) ||
+      /^(eau|the|cafe|jus|boisson|biere|vin|cidre|soda|limonade|sirop|smoothie|nectar|infusion|tisane)\b/.test(
         cherchable,
       )
     )
@@ -79,6 +97,9 @@ export function estLiquide(
 export function densite(nom: string): number {
   const cherchable = normaliser(nom)
   if (HUILE_LIQUIDE.test(cherchable)) return 0.92
+  // Vinaigres et sauces sont aqueux, entre 1,0 et 1,15 g/ml. Sur des
+  // condiments à faible densité calorique, employés par cuillerées, l'écart
+  // reste sous la kilocalorie : un facteur y serait de la fausse précision.
   return 1
 }
 
