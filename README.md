@@ -164,7 +164,9 @@ sur des mots-clés mais sur des signaux autoritatifs :
 - **produits scannés** : l'unité de l'emballage rapportée par OpenFoodFacts,
   en **trois états** — `ml` tranche pour le volume, `g` pour la masse, et une
   fiche muette laisse la question ouverte pour que la déduction sur le nom
-  prenne le relais. Renvoyer « non » faute d'information faisait passer une
+  prenne le relais. `nutrition_data_per: '100ml'` compte aussi comme volume :
+  c'est le signal le plus explicite, il dit sur quelle base l'étiquette a été
+  relevée. Renvoyer « non » faute d'information faisait passer une
   boisson mal renseignée en grammes. Les catégories, elles, sont inutilisables :
   un muesli et un beurre de cacahuète s'y trouvent rangés parmi les boissons.
 - **table CIQUAL** : le groupe `06`, « eaux et autres boissons ». Il ne suffit
@@ -282,6 +284,12 @@ Le module du scanner est chargé à la demande : ZXing pèse près de 500 Ko, qu
 l'écran du jour n'a pas à supporter. Le service worker le précache malgré tout,
 pour que le scan d'un produit déjà connu fonctionne hors ligne.
 
+Le nom est cherché dans plusieurs champs — français, sans langue, anglais, nom
+générique, puis la marque en dernier recours. Beaucoup de fiches n'en
+renseignent qu'un : une eau de coco vietnamienne n'était nommée qu'en anglais,
+et l'app la rejetait comme inexploitable alors que toutes ses valeurs y
+figuraient.
+
 Après lecture du code, la résolution suit cet ordre :
 
 1. **cache local** — un produit déjà scanné est resservi immédiatement, sans
@@ -294,7 +302,9 @@ Le troisième cas couvre aussi bien un code absent d'OpenFoodFacts qu'une fiche
 existante mais dépourvue de valeurs nutritionnelles.
 
 Pour tout ce qu'aucune base ne connaît — plat de traiteur, recette maison — un
-aliment se saisit à la main : nom et valeurs pour 100 g. Il est mémorisé sur l'appareil, reproposé en
+aliment se saisit à la main : nom, unité de mesure, et valeurs pour 100 g ou
+100 ml. L'unité y est demandée explicitement : un aliment créé de toutes pièces
+ne porte aucune information d'emballage sur laquelle s'appuyer. Il est mémorisé sur l'appareil, reproposé en
 tête des recherches suivantes, et listé d'emblée quand la recherche est vide.
 
 La saisie contrôle la cohérence entre les macros et les calories déclarées

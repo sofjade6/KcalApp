@@ -31,6 +31,7 @@ export default function Saisir() {
   const suffixe = recette ? `?recette=${recette}` : jour ? `?jour=${jour}` : ''
 
   const [nom, setNom] = useState('')
+  const [liquide, setLiquide] = useState(false)
   const [valeurs, setValeurs] = useState<Record<CleNutriment, string>>({
     kcal: '',
     prot: '',
@@ -77,7 +78,7 @@ export default function Saisir() {
     setEnregistrement(true)
     try {
       const code = await creerAlimentManuel(
-        { nom: nom.trim(), ...chiffres },
+        { nom: nom.trim(), ...chiffres, liquide },
         codeBarres,
       )
       navigate(`/ajouter/${code}${suffixe}`)
@@ -116,7 +117,25 @@ export default function Saisir() {
       </section>
 
       <section className="carte">
-        <h2 className="carte-titre">Valeurs pour 100 g</h2>
+        <h2 className="carte-titre">Se compte en</h2>
+        <div className="segments deux" role="group" aria-label="Unité de mesure">
+          {[false, true].map((enMl) => (
+            <button
+              key={String(enMl)}
+              className="segment"
+              aria-pressed={liquide === enMl}
+              onClick={() => setLiquide(enMl)}
+            >
+              {enMl ? 'millilitres' : 'grammes'}
+            </button>
+          ))}
+        </div>
+      </section>
+
+      <section className="carte">
+        <h2 className="carte-titre">
+          Valeurs pour 100 {liquide ? 'ml' : 'g'}
+        </h2>
         {NUTRIMENTS.map(({ cle, nom: libelle, unite, requis }) => (
           <label className="champ" key={cle}>
             <span className="champ-nom">
@@ -137,8 +156,8 @@ export default function Saisir() {
           </label>
         ))}
         <p className="note">
-          Recopie la colonne <b>« pour 100 g »</b> de l’étiquette, pas la colonne
-          par portion. La quantité réelle se saisit à l’écran suivant.
+          Recopie la colonne <b>« pour 100 {liquide ? 'ml' : 'g'} »</b> de
+          l’étiquette, pas la colonne par portion. La quantité réelle se saisit à l’écran suivant.
         </p>
       </section>
 

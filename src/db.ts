@@ -200,7 +200,7 @@ export const PROFIL_DEFAUT: Profil = {
  * pour qu'ils cohabitent sans risque avec les codes EAN d'OpenFoodFacts.
  */
 export async function creerAlimentManuel(
-  saisie: Nutriments & { nom: string; marque?: string },
+  saisie: Nutriments & { nom: string; marque?: string; liquide?: boolean },
   /** Code-barres, quand la saisie fait suite à un scan resté sans réponse. */
   codeBarres?: string,
 ): Promise<string> {
