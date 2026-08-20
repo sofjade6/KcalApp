@@ -106,6 +106,12 @@ export interface Activite {
   date: string
   nom: string
   kcal: number
+  /**
+   * Nombre de pas, quand l'effort a été déclaré ainsi. Conservé en plus des
+   * calories : c'est la donnée que le téléphone compte, et la seule qu'on
+   * puisse totaliser sur la journée sans rien réestimer.
+   */
+  pas?: number
   creeLe: number
 }
 
@@ -261,8 +267,13 @@ export async function majHydratation(date: string, verres: number) {
   else await db.hydratation.put({ date, verres })
 }
 
-export async function ajouterActivite(date: string, nom: string, kcal: number) {
-  await db.activites.add({ date, nom, kcal, creeLe: Date.now() })
+export async function ajouterActivite(
+  date: string,
+  nom: string,
+  kcal: number,
+  pas?: number,
+) {
+  await db.activites.add({ date, nom, kcal, pas, creeLe: Date.now() })
 }
 
 export default db

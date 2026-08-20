@@ -219,6 +219,28 @@ Le scan et la saisie partagent la même résolution (`src/lib/produit.ts`) : cac
 local d'abord, puis OpenFoodFacts, puis saisie manuelle avec le code en
 paramètre.
 
+## Activité en pas plutôt qu'en durée
+
+Marche et course se déclarent en **nombre de pas**, la seule des deux données
+qu'un téléphone compte tout seul : une durée, il faut se la rappeler. La durée
+reste disponible d'un geste, pour un tapis de course ou une balade sans
+téléphone.
+
+La chaîne est explicite : les pas donnent une distance via la longueur du pas,
+estimée à 0,415 fois la taille en marche et 0,6 fois en course — un pas, pas
+une enjambée, qui en vaut deux. La distance donne ensuite les calories.
+
+Le coût du kilomètre n'est **pas** une constante posée à part, il se déduit de
+la dépense horaire et d'une vitesse de référence (`src/lib/activite.ts`). Sans
+cela, les deux modes de saisie finiraient par se contredire sur le même
+parcours ; ainsi une heure de marche et les 5 km correspondants en pas donnent
+exactement le même total.
+
+Les dépenses horaires du tableau valent pour 70 kg, et sont désormais mises à
+l'échelle de la **dernière pesée** : à 95 kg, une heure de marche compte 326
+kcal et non 240. Le nombre de pas est conservé en base à côté des calories, ce
+qui permet de totaliser la journée sans rien réestimer.
+
 ## Sauvegarde
 
 Les données ne vivent que sur l'appareil : perdre le téléphone, c'est perdre
